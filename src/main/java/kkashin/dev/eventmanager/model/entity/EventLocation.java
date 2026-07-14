@@ -51,11 +51,4 @@ public class EventLocation {
         this.capacity = capacity;
         this.description = description;
     }
-
-    public void updateDetails(UpdateEventLocationDto updateEventLocationDto) {
-        this.name = updateEventLocationDto.name();
-        this.address = updateEventLocationDto.address();
-        this.capacity = updateEventLocationDto.capacity();
-        this.description = updateEventLocationDto.description();
-    }
 }

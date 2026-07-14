@@ -55,7 +55,12 @@ public class EventLocationService {
     ) {
         var locationToUpdate = getLocationOrThrow(id);
 
-        locationToUpdate.updateDetails(updateEventLocationDto);
+        locationToUpdate.updateDetails(
+                updateEventLocationDto.name(),
+                updateEventLocationDto.address(),
+                updateEventLocationDto.capacity(),
+                updateEventLocationDto.description()
+        );
 
         return eventLocationMapper.toDto(locationToUpdate);
     }

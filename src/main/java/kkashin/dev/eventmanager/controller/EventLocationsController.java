@@ -4,16 +4,17 @@ import kkashin.dev.eventmanager.model.dto.location.CreateEventLocationDto;
 import kkashin.dev.eventmanager.model.dto.location.EventLocationDto;
 import kkashin.dev.eventmanager.model.dto.location.UpdateEventLocationDto;
 import kkashin.dev.eventmanager.service.EventLocationService;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/locations")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class EventLocationsController {
-    private EventLocationService eventLocationService;
+    private final EventLocationService eventLocationService;
 
     @GetMapping
     public List<EventLocationDto> getAllLocations() {
@@ -21,11 +22,13 @@ public class EventLocationsController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public EventLocationDto createLocation(@RequestBody CreateEventLocationDto createEventLocationDto) {
         return eventLocationService.createLocation(createEventLocationDto);
     }
 
     @DeleteMapping("/{locationId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteLocation(@PathVariable Long locationId) {
         eventLocationService.deleteLocation(locationId);
     }

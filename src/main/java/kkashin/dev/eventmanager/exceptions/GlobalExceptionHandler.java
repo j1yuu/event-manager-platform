@@ -8,6 +8,8 @@ import kkashin.dev.eventmanager.exceptions.models.EMUnauthorizedRequestException
 import kkashin.dev.eventmanager.model.dto.HttpExceptionDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -40,6 +42,25 @@ public class GlobalExceptionHandler {
     public ResponseEntity<HttpExceptionDto> handleUnauthorizedException(EMUnauthorizedRequestException e) {
         var body = new HttpExceptionDto("Not authorized", e.getMessage(), LocalDateTime.now());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<HttpExceptionDto> handleMethodArgumentNotValidException(
+            MethodArgumentNotValidException exception
+    ) {
+        var message = exception.getBindingResult().getFieldErrors()
+                .stream()
+                .sorted(Comparator.comparing(FieldError::getField))
+                .map(fieldError -> "%s: %s".formatted(fieldError.getField(), fieldError.getDefaultMessage()))
+                .collect(Collectors.joining("; "));
+
+        var body = new HttpExceptionDto(
+                "Validation failed",
+                message,
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.badRequest().body(body);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
