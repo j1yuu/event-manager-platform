@@ -20,7 +20,6 @@ import java.util.List;
 @Validated
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class EventLocationService {
     private final EventLocationRepository eventLocationRepository;
     private final EventLocationMapper eventLocationMapper;

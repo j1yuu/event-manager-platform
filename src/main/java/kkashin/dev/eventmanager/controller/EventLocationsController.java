@@ -6,6 +6,7 @@ import kkashin.dev.eventmanager.model.dto.location.UpdateEventLocationDto;
 import kkashin.dev.eventmanager.service.EventLocationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,29 +18,40 @@ public class EventLocationsController {
     private final EventLocationService eventLocationService;
 
     @GetMapping
-    public List<EventLocationDto> getAllLocations() {
-        return eventLocationService.getAllLocations();
+    public ResponseEntity<List<EventLocationDto>> getAllLocations() {
+        var locations = eventLocationService.getAllLocations();
+
+        return ResponseEntity.ok(locations);
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public EventLocationDto createLocation(@RequestBody CreateEventLocationDto createEventLocationDto) {
-        return eventLocationService.createLocation(createEventLocationDto);
+    public ResponseEntity<EventLocationDto> createLocation(@RequestBody CreateEventLocationDto createEventLocationDto) {
+        var location = eventLocationService.createLocation(createEventLocationDto);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(location);
     }
 
     @DeleteMapping("/{locationId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteLocation(@PathVariable Long locationId) {
+    public ResponseEntity<Void> deleteLocation(@PathVariable Long locationId) {
         eventLocationService.deleteLocation(locationId);
+
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{locationId}")
-    public EventLocationDto getLocation(@PathVariable Long locationId) {
-        return eventLocationService.getLocation(locationId);
+    public ResponseEntity<EventLocationDto> getLocation(@PathVariable Long locationId) {
+        var location = eventLocationService.getLocation(locationId);
+
+        return ResponseEntity.ok(location);
     }
 
     @PutMapping("/{locationId}")
-    public EventLocationDto updateLocation(@PathVariable Long locationId, @RequestBody UpdateEventLocationDto updateEventLocationDto) {
-        return eventLocationService.updateLocation(locationId, updateEventLocationDto);
+    public ResponseEntity<EventLocationDto> updateLocation(
+            @PathVariable Long locationId,
+            @RequestBody UpdateEventLocationDto updateEventLocationDto
+    ) {
+        var location = eventLocationService.updateLocation(locationId, updateEventLocationDto);
+
+        return ResponseEntity.ok(location);
     }
 }
