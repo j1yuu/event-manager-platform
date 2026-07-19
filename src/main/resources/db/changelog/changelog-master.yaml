@@ -1,1 +1,4 @@
 databaseChangeLog:
+  - include:
+      file: migrations/001-create-locations-table.xml
+      relativeToChangelogFile: true
