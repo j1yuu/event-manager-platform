@@ -24,7 +24,7 @@
                 <constraints nullable="false"/>
             </column>
 
-            <column name="login_norm" type="VARCHAR(36)">
+            <column name="login_normalized" type="VARCHAR(36)">
                 <constraints nullable="false"/>
             </column>
 
@@ -55,7 +55,7 @@
 
         <addUniqueConstraint
                 tableName="users"
-                columnNames="login_norm"
+                columnNames="login_normalized"
                 constraintName="uk_users_username"/>
 
         <sql>

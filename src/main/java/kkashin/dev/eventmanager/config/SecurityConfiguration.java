@@ -23,28 +23,28 @@ import org.springframework.security.web.authentication.AnonymousAuthenticationFi
 @Configuration
 public class SecurityConfiguration {
     @Autowired
-    CustomAccessDeniedHandler customAccessDeniedHandler;
+    private CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Autowired
-    CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Autowired
-    JwtFilter jwtFilter;
+    private JwtFilter jwtFilter;
 
     @Bean
-    PasswordEncoder passwordEncoder() {
+    public PasswordEncoder passwordEncoder() {
         return new Argon2Password4jPasswordEncoder();
     }
 
     @Bean
-    AuthenticationManager authenticationManager(
+    public AuthenticationManager authenticationManager(
             AuthenticationConfiguration authenticationConfiguration
     ) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
     @Bean
-    AuthenticationProvider authenticationProvider(
+    public AuthenticationProvider authenticationProvider(
             CustomUserDetailsService customUserDetailsService,
             PasswordEncoder passwordEncoder
     ) {
@@ -55,7 +55,7 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    SecurityFilterChain filter(
+    public SecurityFilterChain filter(
             HttpSecurity httpSecurity,
             AuthenticationProvider authenticationProvider
     ) throws Exception {

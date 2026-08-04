@@ -18,7 +18,7 @@ import java.time.Instant;
         uniqueConstraints = {
                 @UniqueConstraint(
                         name = "uk_users_username",
-                        columnNames = "login_norm"
+                        columnNames = "login_normalized"
                 ),
         }
 )
@@ -33,7 +33,7 @@ public class UserEntity {
     @Column(name = "login", nullable = false, length = 36)
     private String login;
 
-    @Column(name = "login_norm", nullable = false, length = 36)
+    @Column(name = "login_normalized", nullable = false, length = 36)
     private String loginNormalized;
 
     @Column(name = "password_hash", nullable = false)
