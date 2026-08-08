@@ -1,5 +1,7 @@
 server:
   port: ${SERVER_PORT:8080}
+  error:
+    include-errors: true
 
 spring:
   application:
@@ -35,3 +37,12 @@ springdoc:
       - name: Event Notificator API
         url: /docs/openapi/event-notificator.openapi.yaml
     urls-primary-name: Event Manager API
+
+event-manager:
+  jwt:
+    issuer: ${JWT_ISSUER}
+    access-ttl: ${JWT_TTL}
+    secret-base64: ${JWT_SECRET}
+  admin:
+    login: ${APP_ADMIN_USERNAME}
+    password: ${APP_ADMIN_PASSWORD}
