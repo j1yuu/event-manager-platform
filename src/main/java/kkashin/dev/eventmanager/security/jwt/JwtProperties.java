@@ -5,8 +5,6 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
 
 @ConfigurationProperties(prefix = "event-manager.jwt")
 public record JwtProperties(

@@ -5,11 +5,9 @@ import kkashin.dev.eventmanager.model.enums.UserRole;
 
 public record UserDto(
         @NotNull
-        @Positive
         Long id,
         @NotNull
         @NotBlank
-        @Max(36)
         String login,
         @NotNull
         @Min(0)
