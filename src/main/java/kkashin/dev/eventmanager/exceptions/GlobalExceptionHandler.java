@@ -8,6 +8,8 @@ import kkashin.dev.eventmanager.exceptions.models.EMUnauthorizedRequestException
 import kkashin.dev.eventmanager.model.dto.HttpExceptionDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -20,10 +22,16 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<HttpExceptionDto> handleGlobalException(RuntimeException e) {
-        var body = new HttpExceptionDto("Unexpected error occurred", e.getMessage(), LocalDateTime.now());
-        return ResponseEntity.internalServerError().body(body);
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<HttpExceptionDto> handleAuthenticationException(AuthenticationException e) {
+        var body = new HttpExceptionDto("Not authorized", "Invalid login or password", LocalDateTime.now());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<HttpExceptionDto> handleAccessDeniedException(AccessDeniedException e) {
+        var body = new HttpExceptionDto("Forbidden", e.getMessage(), LocalDateTime.now());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
     }
 
     @ExceptionHandler(EMBadRequestException.class)
@@ -82,6 +90,12 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.badRequest().body(body);
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<HttpExceptionDto> handleGlobalException(RuntimeException e) {
+        var body = new HttpExceptionDto("Unexpected error occurred", e.getMessage(), LocalDateTime.now());
+        return ResponseEntity.internalServerError().body(body);
     }
 
     private String formatViolation(ConstraintViolation<?> violation) {

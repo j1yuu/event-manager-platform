@@ -7,6 +7,7 @@ import kkashin.dev.eventmanager.service.EventLocationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +19,7 @@ public class EventLocationsController {
     private final EventLocationService eventLocationService;
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<List<EventLocationDto>> getAllLocations() {
         var locations = eventLocationService.getAllLocations();
 
@@ -25,6 +27,7 @@ public class EventLocationsController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EventLocationDto> createLocation(@RequestBody CreateEventLocationDto createEventLocationDto) {
         var location = eventLocationService.createLocation(createEventLocationDto);
 
@@ -32,6 +35,7 @@ public class EventLocationsController {
     }
 
     @DeleteMapping("/{locationId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteLocation(@PathVariable Long locationId) {
         eventLocationService.deleteLocation(locationId);
 
@@ -39,6 +43,7 @@ public class EventLocationsController {
     }
 
     @GetMapping("/{locationId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<EventLocationDto> getLocation(@PathVariable Long locationId) {
         var location = eventLocationService.getLocation(locationId);
 
@@ -46,6 +51,7 @@ public class EventLocationsController {
     }
 
     @PutMapping("/{locationId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EventLocationDto> updateLocation(
             @PathVariable Long locationId,
             @RequestBody UpdateEventLocationDto updateEventLocationDto
