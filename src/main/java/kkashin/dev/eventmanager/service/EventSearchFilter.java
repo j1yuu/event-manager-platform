@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 @Component
 public class EventSearchFilter {
@@ -51,10 +50,7 @@ public class EventSearchFilter {
 
             if (filter.name() != null) {
                 predicates.add(
-                        cb.like(
-                                cb.lower(root.get("name")),
-                                filter.name().toLowerCase(Locale.ROOT)
-                        )
+                        cb.equal(root.get("name"), filter.name())
                 );
             }
 
@@ -80,7 +76,7 @@ public class EventSearchFilter {
                 predicates.add(
                         cb.greaterThanOrEqualTo(
                                 root.get("cost"),
-                                filter.placesMin()
+                                filter.costMin()
                         )
                 );
             }
@@ -89,7 +85,7 @@ public class EventSearchFilter {
                 predicates.add(
                         cb.lessThanOrEqualTo(
                                 root.get("cost"),
-                                filter.placesMax()
+                                filter.costMax()
                         )
                 );
             }
@@ -115,7 +111,7 @@ public class EventSearchFilter {
             if (filter.locationId() != null) {
                 predicates.add(
                         cb.equal(
-                                root.get("location").get("id"),
+                                root.get("eventLocation").get("id"),
                                 filter.locationId()
                         )
                 );
@@ -124,10 +120,18 @@ public class EventSearchFilter {
             if (filter.eventStatus() != null) {
                 predicates.add(
                         cb.equal(
-                                root.get("eventStatus"),
+                                root.get("status"),
                                 filter.eventStatus()
                         )
                 );
+            }
+
+            if (filter.dateStartAfter() != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("date"), filter.dateStartAfter()));
+            }
+
+            if (filter.dateStartBefore() != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("date"), filter.dateStartBefore()));
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));

@@ -5,6 +5,7 @@ import kkashin.dev.eventmanager.model.enums.EventStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
+@DynamicUpdate
 public class EventEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

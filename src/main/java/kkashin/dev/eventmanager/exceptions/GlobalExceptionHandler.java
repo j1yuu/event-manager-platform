@@ -3,6 +3,7 @@ package kkashin.dev.eventmanager.exceptions;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import kkashin.dev.eventmanager.exceptions.models.EMBadRequestException;
+import kkashin.dev.eventmanager.exceptions.models.EMForbiddenException;
 import kkashin.dev.eventmanager.exceptions.models.EMNotFoundException;
 import kkashin.dev.eventmanager.exceptions.models.EMUnauthorizedRequestException;
 import kkashin.dev.eventmanager.model.dto.HttpExceptionDto;
@@ -44,6 +45,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<HttpExceptionDto> handleNotFoundException(EMNotFoundException e) {
         var body = new HttpExceptionDto("Resource not found", e.getMessage(), LocalDateTime.now());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
+    @ExceptionHandler(EMForbiddenException.class)
+    public ResponseEntity<HttpExceptionDto> handleForbiddenException(EMForbiddenException e) {
+        var body = new HttpExceptionDto("Forbidden", e.getMessage(), LocalDateTime.now());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
     }
 
     @ExceptionHandler(EMUnauthorizedRequestException.class)

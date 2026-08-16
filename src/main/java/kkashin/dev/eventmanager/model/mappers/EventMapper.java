@@ -34,6 +34,7 @@ public class EventMapper {
         entity.setMaxPlaces(dto.maxPlaces());
         entity.setOccupiedPlaces(0);
         entity.setDate(dto.date());
+        entity.setCost(dto.cost());
         entity.setDuration(dto.duration());
         entity.setEventLocation(location);
         entity.setStatus(EventStatus.WAIT_START);
