@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+            http://www.liquibase.org/xml/ns/dbchangelog
+            https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create-events-table" author="kkashin">
+
+        <createTable tableName="events">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints
+                        primaryKey="true"
+                        nullable="false"/>
+            </column>
+
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="owner_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="max_places" type="INT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="occupied_places" type="INT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="date" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="cost" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="duration" type="INT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="location_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="status" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+                constraintName="fk_events_owner"
+                baseTableName="events"
+                baseColumnNames="owner_id"
+                referencedTableName="users"
+                referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint
+                constraintName="fk_events_location"
+                baseTableName="events"
+                baseColumnNames="location_id"
+                referencedTableName="event_locations"
+                referencedColumnNames="id"/>
+
+    </changeSet>
+
+
+    <changeSet id="create-registrations-table" author="kkashin">
+
+        <createTable tableName="registrations">
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="event_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey
+                tableName="registrations"
+                columnNames="user_id, event_id"
+                constraintName="pk_registrations"/>
+
+        <addForeignKeyConstraint
+                constraintName="fk_registrations_user"
+                baseTableName="registrations"
+                baseColumnNames="user_id"
+                referencedTableName="users"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint
+                constraintName="fk_registrations_event"
+                baseTableName="registrations"
+                baseColumnNames="event_id"
+                referencedTableName="events"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+
+    </changeSet>
+
+</databaseChangeLog>

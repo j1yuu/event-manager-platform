@@ -36,7 +36,7 @@ public class EventEntity {
     @Column(name = "date", nullable = false)
     private LocalDateTime date;
 
-    @Column(name = "date", nullable = false)
+    @Column(name = "cost", nullable = false)
     private Long cost;
 
     @Column(name = "duration", nullable = false)
@@ -46,6 +46,7 @@ public class EventEntity {
     @JoinColumn(name = "location_id", nullable = false)
     private EventLocation eventLocation;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private EventStatus status;
 
