@@ -1,6 +1,7 @@
 package kkashin.dev.eventmanager.model.dto.event;
 
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 
@@ -13,7 +14,7 @@ public record EventUpdateDto(
         @PositiveOrZero
         Integer maxPlaces,
 
-        @NotBlank
+        @FutureOrPresent
         LocalDateTime date,
 
         @Min(1)

@@ -39,8 +39,12 @@ public class RegistrationService {
             throw new EMBadRequestException("Registration on this event is no longer available");
         }
 
-        if (event.getOccupiedPlaces() < event.getMaxPlaces()) {
+        if (event.getOccupiedPlaces() >= event.getMaxPlaces()) {
             throw new EMBadRequestException("Event has no available places");
+        }
+
+        if (user.getRegistrations().contains(event)) {
+            throw new EMBadRequestException("User is already registered on this event");
         }
 
         event.registerUser(user);
@@ -55,6 +59,10 @@ public class RegistrationService {
 
         if (!event.getStatus().equals(EventStatus.WAIT_START) && !event.getStatus().equals(EventStatus.CANCELLED)) {
             throw new EMBadRequestException("You cannot cancel your registration on this event anymore");
+        }
+
+        if (!user.getRegistrations().contains(event)) {
+            throw new EMBadRequestException("User is not registered on this event");
         }
 
         event.cancelRegistration(user);
