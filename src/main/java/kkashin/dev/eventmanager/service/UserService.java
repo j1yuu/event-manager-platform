@@ -78,6 +78,14 @@ public class UserService {
         return new JwtTokenDto(token);
     }
 
+    public UserEntity getCurrentUserEntity() {
+        var user = getCurrentUser();
+
+        return userRepository.findById(user.getId()).orElseThrow(
+                () -> new EMNotFoundException("User not found")
+        );
+    }
+
     @Transactional
     public UserDto register(RegisterUserDto dto) {
         var loginNorm = dto.login().trim().toLowerCase(Locale.ROOT);

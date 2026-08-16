@@ -11,6 +11,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(
@@ -54,6 +56,14 @@ public class UserEntity {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
+
+    @ManyToMany
+    @JoinTable(
+            name = "registrations",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "event_id")
+    )
+    private List<EventEntity> registrations = new ArrayList<>();
 
     public UserEntity(
             String login,
