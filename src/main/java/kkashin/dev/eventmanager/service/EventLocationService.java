@@ -3,7 +3,7 @@ package kkashin.dev.eventmanager.service;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import kkashin.dev.eventmanager.exceptions.models.EMNotFoundException;
+import kkashin.dev.eventmanager.exceptions.models.ManagerNotFoundException;
 import kkashin.dev.eventmanager.model.dto.location.CreateEventLocationDto;
 import kkashin.dev.eventmanager.model.dto.location.EventLocationDto;
 import kkashin.dev.eventmanager.model.dto.location.UpdateEventLocationDto;
@@ -66,7 +66,7 @@ public class EventLocationService {
 
     private EventLocation getLocationOrThrow(Long id) {
         return eventLocationRepository.findById(id).orElseThrow(
-            () -> new EMNotFoundException("Location with given id was not found: %s".formatted(id))
+            () -> new ManagerNotFoundException("Location with given id was not found: %s".formatted(id))
         );
     }
 }

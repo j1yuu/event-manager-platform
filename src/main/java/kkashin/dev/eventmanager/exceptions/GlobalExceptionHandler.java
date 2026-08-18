@@ -1,10 +1,11 @@
 package kkashin.dev.eventmanager.exceptions;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
-import kkashin.dev.eventmanager.exceptions.models.EMBadRequestException;
-import kkashin.dev.eventmanager.exceptions.models.EMNotFoundException;
-import kkashin.dev.eventmanager.exceptions.models.EMUnauthorizedRequestException;
+import kkashin.dev.eventmanager.exceptions.models.ManagerBadRequestException;
+import kkashin.dev.eventmanager.exceptions.models.ManagerNotFoundException;
+import kkashin.dev.eventmanager.exceptions.models.ManagerUnauthorizedRequestException;
 import kkashin.dev.eventmanager.model.dto.HttpExceptionDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,20 +35,20 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
     }
 
-    @ExceptionHandler(EMBadRequestException.class)
-    public ResponseEntity<HttpExceptionDto> handleBadRequestException(EMBadRequestException e) {
+    @ExceptionHandler(ManagerBadRequestException.class)
+    public ResponseEntity<HttpExceptionDto> handleBadRequestException(ManagerBadRequestException e) {
         var body = new HttpExceptionDto("Bad request", e.getMessage(), LocalDateTime.now());
         return ResponseEntity.badRequest().body(body);
     }
 
-    @ExceptionHandler(EMNotFoundException.class)
-    public ResponseEntity<HttpExceptionDto> handleNotFoundException(EMNotFoundException e) {
+    @ExceptionHandler(value = {ManagerNotFoundException.class, EntityNotFoundException.class})
+    public ResponseEntity<HttpExceptionDto> handleNotFoundException(RuntimeException e) {
         var body = new HttpExceptionDto("Resource not found", e.getMessage(), LocalDateTime.now());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
-    @ExceptionHandler(EMUnauthorizedRequestException.class)
-    public ResponseEntity<HttpExceptionDto> handleUnauthorizedException(EMUnauthorizedRequestException e) {
+    @ExceptionHandler(ManagerUnauthorizedRequestException.class)
+    public ResponseEntity<HttpExceptionDto> handleUnauthorizedException(ManagerUnauthorizedRequestException e) {
         var body = new HttpExceptionDto("Not authorized", e.getMessage(), LocalDateTime.now());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
     }

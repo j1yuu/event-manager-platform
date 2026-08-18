@@ -1,7 +1,7 @@
 package kkashin.dev.eventmanager.service;
 
-import kkashin.dev.eventmanager.exceptions.models.EMBadRequestException;
-import kkashin.dev.eventmanager.exceptions.models.EMNotFoundException;
+import kkashin.dev.eventmanager.exceptions.models.ManagerBadRequestException;
+import kkashin.dev.eventmanager.exceptions.models.ManagerNotFoundException;
 import kkashin.dev.eventmanager.model.dto.event.CreateEventDto;
 import kkashin.dev.eventmanager.model.dto.event.EventDto;
 import kkashin.dev.eventmanager.model.dto.event.EventSearchDto;
@@ -11,7 +11,6 @@ import kkashin.dev.eventmanager.model.entity.EventLocation;
 import kkashin.dev.eventmanager.model.mappers.EventMapper;
 import kkashin.dev.eventmanager.repository.EventLocationRepository;
 import kkashin.dev.eventmanager.repository.EventRepository;
-import kkashin.dev.eventmanager.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,11 +43,11 @@ public class EventService {
     public EventDto createEvent(CreateEventDto createEventDto) {
         var user = userService.getCurrentUserEntity();
         var location = eventLocationRepository.findById(createEventDto.locationId()).orElseThrow(
-                () -> new EMNotFoundException("Location with given id not found: %s".formatted(createEventDto.locationId()))
+                () -> new ManagerNotFoundException("Location with given id not found: %s".formatted(createEventDto.locationId()))
         );
 
         if (createEventDto.maxPlaces() > location.getCapacity()) {
-            throw new EMBadRequestException("Event maxPlaces couldn't be more than location capacity");
+            throw new ManagerBadRequestException("Event maxPlaces couldn't be more than location capacity");
         }
 
         var entity = eventMapper.fromCreateDto(createEventDto, user, location);
@@ -60,7 +59,7 @@ public class EventService {
     @Transactional
     public void deleteEvent(Long eventId) {
         if (!eventRepository.existsById(eventId)) {
-            throw new EMNotFoundException("Event with given id was not found: %s".formatted(eventId));
+            throw new ManagerNotFoundException("Event with given id was not found: %s".formatted(eventId));
         }
 
         eventRepository.deleteById(eventId);
@@ -79,7 +78,7 @@ public class EventService {
         EventLocation location = source.getEventLocation();
         if (eventUpdateDto.locationId() != null) {
             location = eventLocationRepository.findById(eventUpdateDto.locationId()).orElseThrow(
-                    () -> new EMNotFoundException("Location with given id was not found: %s".formatted(eventUpdateDto.locationId()))
+                    () -> new ManagerNotFoundException("Location with given id was not found: %s".formatted(eventUpdateDto.locationId()))
             );
         }
 
@@ -90,6 +89,30 @@ public class EventService {
     }
 
     public List<EventDto> searchEvents(EventSearchDto eventSearchDto) {
+        if (eventSearchDto.placesMin() != null
+                && eventSearchDto.placesMax() != null
+                && eventSearchDto.placesMin() > eventSearchDto.placesMax()) {
+            throw new ManagerBadRequestException("placesMin should be less than placesMax");
+        }
+
+        if (eventSearchDto.dateStartBefore() != null
+                && eventSearchDto.dateStartAfter() != null
+                && eventSearchDto.dateStartAfter().isAfter(eventSearchDto.dateStartBefore())) {
+            throw new ManagerBadRequestException("dateAfter should be before dateBefore");
+        }
+
+        if (eventSearchDto.costMin() != null
+                && eventSearchDto.costMax() != null
+                && eventSearchDto.costMin() > eventSearchDto.costMax()) {
+            throw new ManagerBadRequestException("costMin should be less than costMax");
+        }
+
+        if (eventSearchDto.durationMin() != null
+                && eventSearchDto.durationMax() != null
+                && eventSearchDto.durationMin() > eventSearchDto.durationMax()) {
+            throw new ManagerBadRequestException("durationMin should be less than durationMax");
+        }
+
         var events = eventRepository.findAll(
                 searchFilter.byFilter(eventSearchDto)
         );
@@ -107,7 +130,7 @@ public class EventService {
 
     private EventEntity findEventOrError(Long eventId) {
         return eventRepository.findById(eventId).orElseThrow(
-                () -> new EMNotFoundException("Event with given id was not found: %s".formatted(eventId))
+                () -> new ManagerNotFoundException("Event with given id was not found: %s".formatted(eventId))
         );
     }
 }
