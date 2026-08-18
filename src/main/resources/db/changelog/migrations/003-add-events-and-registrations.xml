@@ -64,7 +64,7 @@
                 constraintName="fk_events_location"
                 baseTableName="events"
                 baseColumnNames="location_id"
-                referencedTableName="event_locations"
+                referencedTableName="locations"
                 referencedColumnNames="id"/>
 
     </changeSet>

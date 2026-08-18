@@ -3,6 +3,7 @@ package kkashin.dev.eventmanager.service;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import kkashin.dev.eventmanager.exceptions.models.ManagerBadRequestException;
 import kkashin.dev.eventmanager.exceptions.models.ManagerNotFoundException;
 import kkashin.dev.eventmanager.model.dto.location.CreateEventLocationDto;
 import kkashin.dev.eventmanager.model.dto.location.EventLocationDto;
@@ -10,6 +11,7 @@ import kkashin.dev.eventmanager.model.dto.location.UpdateEventLocationDto;
 import kkashin.dev.eventmanager.model.entity.EventLocation;
 import kkashin.dev.eventmanager.model.mappers.EventLocationMapper;
 import kkashin.dev.eventmanager.repository.EventLocationRepository;
+import kkashin.dev.eventmanager.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +25,7 @@ import java.util.List;
 public class EventLocationService {
     private final EventLocationRepository eventLocationRepository;
     private final EventLocationMapper eventLocationMapper;
+    private final EventRepository eventRepository;
 
     public List<EventLocationDto> getAllLocations() {
         return eventLocationRepository.findAll().stream().map(eventLocationMapper::toDto).toList();
@@ -40,6 +43,10 @@ public class EventLocationService {
     public void deleteLocation(@NotNull @Positive Long id) {
         var locationToDelete = getLocationOrThrow(id);
 
+        if (eventRepository.existsByEventLocationId(id)) {
+            throw new ManagerBadRequestException("A location used by events cannot be deleted");
+        }
+
         eventLocationRepository.delete(locationToDelete);
     }
 
@@ -53,6 +60,10 @@ public class EventLocationService {
             @NotNull @Valid UpdateEventLocationDto updateEventLocationDto
     ) {
         var locationToUpdate = getLocationOrThrow(id);
+
+        if (eventRepository.existsByEventLocationIdAndMaxPlacesGreaterThan(id, updateEventLocationDto.capacity())) {
+            throw new ManagerBadRequestException("Location capacity cannot be less than maxPlaces of its events");
+        }
 
         locationToUpdate.updateDetails(
                 updateEventLocationDto.name(),

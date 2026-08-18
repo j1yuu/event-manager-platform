@@ -13,10 +13,10 @@ import java.util.List;
 
 @Service
 public class RegistrationService {
-    private EventRepository eventRepository;
+    private final EventRepository eventRepository;
 
-    private UserService userService;
-    private EventMapper eventMapper;
+    private final UserService userService;
+    private final EventMapper eventMapper;
 
     public RegistrationService(
             UserService userService,
@@ -39,8 +39,12 @@ public class RegistrationService {
             throw new ManagerBadRequestException("Registration on this event is no longer available");
         }
 
-        if (event.getOccupiedPlaces() < event.getMaxPlaces()) {
+        if (event.getOccupiedPlaces() >= event.getMaxPlaces()) {
             throw new ManagerBadRequestException("Event has no available places");
+        }
+
+        if (user.getRegistrations().contains(event)) {
+            throw new ManagerBadRequestException("User is already registered on this event");
         }
 
         event.registerUser(user);
@@ -55,6 +59,10 @@ public class RegistrationService {
 
         if (!event.getStatus().equals(EventStatus.WAIT_START) && !event.getStatus().equals(EventStatus.CANCELLED)) {
             throw new ManagerBadRequestException("You cannot cancel your registration on this event anymore");
+        }
+
+        if (!user.getRegistrations().contains(event)) {
+            throw new ManagerBadRequestException("User is not registered on this event");
         }
 
         event.cancelRegistration(user);

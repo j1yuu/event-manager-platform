@@ -3,9 +3,7 @@ package kkashin.dev.eventmanager.exceptions;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
-import kkashin.dev.eventmanager.exceptions.models.ManagerBadRequestException;
-import kkashin.dev.eventmanager.exceptions.models.ManagerNotFoundException;
-import kkashin.dev.eventmanager.exceptions.models.ManagerUnauthorizedRequestException;
+import kkashin.dev.eventmanager.exceptions.models.*;
 import kkashin.dev.eventmanager.model.dto.HttpExceptionDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,6 +43,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<HttpExceptionDto> handleNotFoundException(RuntimeException e) {
         var body = new HttpExceptionDto("Resource not found", e.getMessage(), LocalDateTime.now());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
+    @ExceptionHandler(ManagerForbiddenException.class)
+    public ResponseEntity<HttpExceptionDto> handleForbiddenException(ManagerForbiddenException e) {
+        var body = new HttpExceptionDto("Forbidden", e.getMessage(), LocalDateTime.now());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
     }
 
     @ExceptionHandler(ManagerUnauthorizedRequestException.class)

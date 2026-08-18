@@ -1,7 +1,6 @@
 package kkashin.dev.eventmanager.service;
 
 import jakarta.persistence.criteria.Predicate;
-import kkashin.dev.eventmanager.exceptions.models.ManagerBadRequestException;
 import kkashin.dev.eventmanager.model.dto.event.EventSearchDto;
 import kkashin.dev.eventmanager.model.entity.EventEntity;
 import org.springframework.data.jpa.domain.Specification;
@@ -9,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 @Component
 public class EventSearchFilter {
@@ -18,10 +16,7 @@ public class EventSearchFilter {
             List<Predicate> predicates = new ArrayList<>();
 
             if (filter.name() != null) {
-                predicates.add(cb.like(
-                        cb.lower(root.get("name")),
-                        filter.name().toLowerCase(Locale.ROOT))
-                );
+                predicates.add(cb.equal(root.get("name"), filter.name()));
             }
 
             if (filter.placesMin() != null) {
@@ -68,16 +63,24 @@ public class EventSearchFilter {
 
             if (filter.locationId() != null) {
                 predicates.add(cb.equal(
-                                root.get("location").get("id"),
+                                root.get("eventLocation").get("id"),
                                 filter.locationId())
                 );
             }
 
             if (filter.eventStatus() != null) {
                 predicates.add(cb.equal(
-                                root.get("eventStatus"),
+                                root.get("status"),
                                 filter.eventStatus())
                 );
+            }
+
+            if (filter.dateStartAfter() != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("date"), filter.dateStartAfter()));
+            }
+
+            if (filter.dateStartBefore() != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("date"), filter.dateStartBefore()));
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));
