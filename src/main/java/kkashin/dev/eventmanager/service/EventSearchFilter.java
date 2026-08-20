@@ -20,59 +20,35 @@ public class EventSearchFilter {
             }
 
             if (filter.placesMin() != null) {
-                predicates.add(cb.greaterThanOrEqualTo(
-                                root.get("maxPlaces"),
-                                filter.placesMin())
-                );
+                predicates.add(cb.greaterThanOrEqualTo(root.get("maxPlaces"), filter.placesMin()));
             }
 
             if (filter.placesMax() != null) {
-                predicates.add(cb.lessThanOrEqualTo(
-                                root.get("maxPlaces"),
-                                filter.placesMax())
-                );
+                predicates.add(cb.lessThanOrEqualTo(root.get("maxPlaces"), filter.placesMax()));
             }
 
             if (filter.costMin() != null) {
-                predicates.add(cb.greaterThanOrEqualTo(
-                                root.get("cost"),
-                                filter.costMin())
-                );
+                predicates.add(cb.greaterThanOrEqualTo(root.get("cost"), filter.costMin()));
             }
 
             if (filter.costMax() != null) {
-                predicates.add(cb.lessThanOrEqualTo(
-                                root.get("cost"),
-                                filter.costMax())
-                );
+                predicates.add(cb.lessThanOrEqualTo(root.get("cost"), filter.costMax()));
             }
 
             if (filter.durationMin() != null) {
-                predicates.add(cb.greaterThanOrEqualTo(
-                                root.get("duration"),
-                                filter.durationMin())
-                );
+                predicates.add(cb.greaterThanOrEqualTo(root.get("duration"),filter.durationMin()));
             }
 
             if (filter.durationMax() != null) {
-                predicates.add(cb.lessThanOrEqualTo(
-                                root.get("duration"),
-                                filter.durationMax())
-                );
+                predicates.add(cb.lessThanOrEqualTo(root.get("duration"), filter.durationMax()));
             }
 
             if (filter.locationId() != null) {
-                predicates.add(cb.equal(
-                                root.get("eventLocation").get("id"),
-                                filter.locationId())
-                );
+                predicates.add(cb.equal(root.get("eventLocation").get("id"), filter.locationId()));
             }
 
             if (filter.eventStatus() != null) {
-                predicates.add(cb.equal(
-                                root.get("status"),
-                                filter.eventStatus())
-                );
+                predicates.add(cb.equal(root.get("status"), filter.eventStatus()));
             }
 
             if (filter.dateStartAfter() != null) {
