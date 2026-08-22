@@ -1,8 +1,8 @@
 package kkashin.dev.eventmanager.service;
 
-import kkashin.dev.eventmanager.exceptions.models.EMBadRequestException;
-import kkashin.dev.eventmanager.exceptions.models.EMNotFoundException;
-import kkashin.dev.eventmanager.exceptions.models.EMUnauthorizedRequestException;
+import jakarta.persistence.EntityNotFoundException;
+import kkashin.dev.eventmanager.exceptions.models.ManagerBadRequestException;
+import kkashin.dev.eventmanager.exceptions.models.ManagerUnauthorizedRequestException;
 import kkashin.dev.eventmanager.model.dto.user.JwtTokenDto;
 import kkashin.dev.eventmanager.model.dto.user.LoginUserDto;
 import kkashin.dev.eventmanager.model.dto.user.RegisterUserDto;
@@ -44,7 +44,7 @@ public class UserService {
 
     public UserDto findById(Long id) {
         var user = userRepository.findById(id).orElseThrow(
-                () -> new EMNotFoundException("User was not found")
+                () -> new EntityNotFoundException("User was not found")
         );
 
         return userMapper.toDto(user);
@@ -60,7 +60,7 @@ public class UserService {
             }
         }
 
-        throw new EMUnauthorizedRequestException("User is not authorized");
+        throw new ManagerUnauthorizedRequestException("User is not authorized");
     }
 
     public JwtTokenDto authenticateUser(LoginUserDto loginRequestDto) {
@@ -78,12 +78,20 @@ public class UserService {
         return new JwtTokenDto(token);
     }
 
+    public UserEntity getCurrentUserEntity() {
+        var user = getCurrentUser();
+
+        return userRepository.findById(user.getId()).orElseThrow(
+                () -> new EntityNotFoundException("User not found")
+        );
+    }
+
     @Transactional
     public UserDto register(RegisterUserDto dto) {
         var loginNorm = dto.login().trim().toLowerCase(Locale.ROOT);
 
         if (userRepository.existsByLoginNormalized(loginNorm)) {
-            throw new EMBadRequestException("Login already taken");
+            throw new ManagerBadRequestException("Login already taken");
         }
 
         var passwordHash = passwordEncoder.encode(dto.password());
