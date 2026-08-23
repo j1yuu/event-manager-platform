@@ -30,7 +30,6 @@ public class EventLocationsController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EventLocationDto> createLocation(@RequestBody CreateEventLocationDto createEventLocationDto) {
         var location = eventLocationService.createLocation(createEventLocationDto);
-
         return ResponseEntity.status(HttpStatus.CREATED).body(location);
     }
 
