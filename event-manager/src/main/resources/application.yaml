@@ -1,5 +1,5 @@
 server:
-  port: ${SERVER_PORT:8080}
+  port: ${EM_SERVER_PORT:8080}
   error:
     include-errors: true
 
@@ -8,9 +8,9 @@ spring:
     name: event-manager
 
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/event-manager}
-    username: ${DB_USERNAME:admin}
-    password: ${DB_PASSWORD:test}
+    url: ${EM_DB_URL:jdbc:postgresql://localhost:5432/event-manager}
+    username: ${EM_DB_USERNAME:admin}
+    password: ${EM_DB_PASSWORD:test}
 
   jpa:
     hibernate:

@@ -1,1 +1,5 @@
-rootProject.name = 'event-manager'
+rootProject.name = 'event-manager-platform'
+
+include 'event-common'
+include 'event-notificator'
+include 'event-manager'
