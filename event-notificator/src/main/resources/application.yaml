@@ -1,0 +1,34 @@
+server:
+  port: ${EN_SERVER_PORT:8081}
+  error:
+    include-errors: true
+
+spring:
+  application:
+    name: event-notificator
+
+  datasource:
+    url: ${EN_DB_URL:jdbc:postgresql://localhost:5433/event-notificator}
+    username: ${EN_DB_USERNAME:admin}
+    password: ${EN_DB_PASSWORD:test}
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+    show-sql: true
+
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/changelog-master.yaml
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+
+event-manager:
+  jwt:
+    issuer: ${JWT_ISSUER}
+    access-ttl: ${JWT_TTL}
+    secret-base64: ${JWT_SECRET}
