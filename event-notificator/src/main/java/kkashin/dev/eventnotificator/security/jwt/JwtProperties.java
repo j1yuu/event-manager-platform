@@ -1,4 +1,4 @@
-package kkashin.dev.eventmanager.security.jwt;
+package kkashin.dev.eventnotificator.security.jwt;
 
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;

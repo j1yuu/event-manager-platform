@@ -22,6 +22,27 @@ spring:
     enabled: true
     change-log: classpath:/db/changelog/changelog-master.yaml
 
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    client-id: event-notificator
+
+    consumer:
+      group-id: event-notificator
+
+      enable-auto-commit: false
+      auto-offset-reset: earliest
+
+      properties:
+        "[spring.json.use.type.headers]": false
+        "[spring.json.trusted.packages]": kkashin.dev.eventcommon.kafka
+
+    listener:
+      type: single
+      ack-mode: record
+      concurrency: 1
+      missing-topics-fatal: true
+      log-container-config: true
+
 logging:
   level:
     root: INFO
@@ -32,3 +53,13 @@ event-manager:
     issuer: ${JWT_ISSUER}
     access-ttl: ${JWT_TTL}
     secret-base64: ${JWT_SECRET}
+
+  kafka:
+    topics:
+      event-changed:
+        name: ${KAFKA_EVENT_CHANGED_TOPIC:event-manager.event-changed}
+        group-id: ${KAFKA_EVENT_CHANGED_CONSUMER_GROUP:event-notificator-event-changed}
+
+      user-created:
+        name: ${KAFKA_USER_CREATED_TOPIC:event-manager.user-created}
+        group-id: ${KAFKA_USER_CREATED_CONSUMER_GROUP:event-notificator-user-created}

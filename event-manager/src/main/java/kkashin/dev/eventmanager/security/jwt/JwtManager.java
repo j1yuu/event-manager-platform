@@ -1,9 +1,14 @@
 package kkashin.dev.eventmanager.security.jwt;
 
 import io.jsonwebtoken.Jwts;
+import kkashin.dev.eventmanager.security.user.User;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.Date;
+
+import static kkashin.dev.securityConstants.SecurityClaims.LOGIN_CLAIM;
+import static kkashin.dev.securityConstants.SecurityClaims.ROLE_CLAIM;
 
 @Component
 public class JwtManager {
@@ -14,16 +19,22 @@ public class JwtManager {
         this.jwtProperties = jwtProperties;
     }
 
-    public String generate(String login) {
+    public String generate(User user) {
+        var now = Instant.now();
+
         return Jwts
                 .builder()
-                .subject(login)
+                .subject(user.getId().toString())
+                .claim(LOGIN_CLAIM, user.getLoginNormalized())
+                .claim(ROLE_CLAIM, user.getUserRole())
                 .issuer(jwtProperties.issuer())
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(now.plus(jwtProperties.accessTtl())))
                 .signWith(jwtProperties.secretKey(), Jwts.SIG.HS256)
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + jwtProperties.accessTtl()))
                 .compact();
     }
+
+
 
     public String getLogin(String jwt) {
         return Jwts.parser()
@@ -32,6 +43,6 @@ public class JwtManager {
                 .build()
                 .parseSignedClaims(jwt)
                 .getPayload()
-                .getSubject();
+                .get(LOGIN_CLAIM, String.class);
     }
 }

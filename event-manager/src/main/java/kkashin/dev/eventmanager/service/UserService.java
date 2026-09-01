@@ -72,8 +72,8 @@ public class UserService {
         );
 
         var authenticatedUser = (User) authentication.getPrincipal();
-        assert authenticatedUser != null; //idea просила добавитьы
-        var token = jwtManager.generate(authenticatedUser.getLoginNormalized());
+        assert authenticatedUser != null;
+        var token = jwtManager.generate(authenticatedUser);
 
         return new JwtTokenDto(token);
     }
