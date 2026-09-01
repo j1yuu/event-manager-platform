@@ -101,7 +101,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "/opt/kafka/bin/kafka-topcis.sh --bootstrap-server localhost:19092 --list >/dev/null 2>&1"
+          "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:19092 --list >/dev/null 2>&1"
         ]
       interval: 5s
       timeout: 10s
@@ -113,6 +113,19 @@ services:
 
     volumes:
       - event-manager-broker-data:/var/lib/kafka/data
+
+  kafka-ui:
+    image: kafbat/kafka-ui:latest
+    container_name: event-manager-kafka-ui
+    ports:
+      - "5172:8080"
+    depends_on:
+      event-manager-broker:
+        condition: service_healthy
+    environment:
+      KAFKA_CLUSTERS_0_NAME: 'local-cluster'
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: 'event-manager-broker:19092'
+      DYNAMIC_CONFIG_ENABLED: 'true'
 
 volumes:
   event-manager-db-data:
