@@ -8,3 +8,6 @@ databaseChangeLog:
   - include:
       file: migrations/003-add-events-and-registrations.xml
       relativeToChangelogFile: true
+  - include:
+      file: migrations/004-add-event-outbox-table.xml
+      relativeToChangelogFile: true

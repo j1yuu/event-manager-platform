@@ -30,6 +30,9 @@ public class EventOutbox {
     @Enumerated(EnumType.STRING)
     private OutboxStatus status;
 
+    @Column(name = "claim_token", nullable = false)
+    private String claimToken;
+
     @CreationTimestamp
     @Column(name = "createdAt", nullable = false, updatable = false)
     private Instant createdAt;

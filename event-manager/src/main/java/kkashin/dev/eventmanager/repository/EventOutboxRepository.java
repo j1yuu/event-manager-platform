@@ -10,25 +10,27 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 public interface EventOutboxRepository extends JpaRepository<EventOutbox, Long> {
 
     @Query(value = """
-    select e
+    select e.*
     from events_outbox e
     where e.status = 'PENDING'
-    order by e.created_at desc
-    limit 100
+        or (e.status = 'PROCESSING' and e.locked_until < :now)
+    order by e.created_at
+    limit 1
+    for update skip locked
 """, nativeQuery = true)
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    List<EventOutbox> claimBatch();
+    Optional<EventOutbox> claimNext(@Param("now") Instant now);
 
     @Modifying
     @Query("""
     update EventOutbox e
     set e.status = kkashin.dev.eventmanager.model.enums.OutboxStatus.PENDING
     where e.status = kkashin.dev.eventmanager.model.enums.OutboxStatus.PROCESSING
-        and e.lockedUntil > :now
+        and e.lockedUntil < :now
 """)
     void unlockStuck(@Param("now") Instant now);
 
@@ -41,10 +43,26 @@ public interface EventOutboxRepository extends JpaRepository<EventOutbox, Long> 
     void unlockById(@Param("id") Long id);
 
     @Modifying
-    @Query("""
-    update EventOutbox e
-    set e.status = kkashin.dev.eventmanager.model.enums.OutboxStatus.SENT
-    where e.id = :id
-""")
-    void markSent(@Param("id") Long id);
+    @Query(value = """
+    update events_outbox e
+    set e.status = 'SENT',
+        locked_until = null,
+        claim_token = null
+    where id = :id
+        and status = 'PROCESSING'
+        and claim_token = :token
+""", nativeQuery = true)
+    int markSent(@Param("id") Long id, @Param("token") String token);
+
+    @Modifying
+    @Query(value = """
+    update events_outbox e
+    set e.status = 'PENDING',
+        locked_until = null,
+        claim_token = null
+    where id = :id
+        and status = 'PROCESSING'
+        and claim_token = :token
+""", nativeQuery = true)
+    int release(@Param("id") Long id, @Param("token") String token);
 }

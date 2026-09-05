@@ -48,7 +48,7 @@ logging:
     root: INFO
     org.springframework.web: INFO
 
-event-manager:
+event-notificator:
   jwt:
     issuer: ${JWT_ISSUER}
     access-ttl: ${JWT_TTL}

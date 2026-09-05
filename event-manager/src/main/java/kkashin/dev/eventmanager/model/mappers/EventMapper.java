@@ -94,8 +94,8 @@ public class EventMapper {
         if (dto.name() != null) {
             fields.add(new EventChangedFieldDto(
                     "name",
-                    dto.name(),
                     source.getName(),
+                    dto.name(),
                     FieldType.String
             ));
         }
@@ -103,8 +103,8 @@ public class EventMapper {
         if (dto.maxPlaces() != null) {
             fields.add(new EventChangedFieldDto(
                     "maxPlaces",
-                    dto.maxPlaces().toString(),
                     source.getMaxPlaces().toString(),
+                    dto.maxPlaces().toString(),
                     FieldType.Integer
             ));
         }
@@ -112,26 +112,26 @@ public class EventMapper {
         if (dto.date() != null) {
             fields.add(new EventChangedFieldDto(
                     "date",
-                    dto.date().toString(),
                     source.getDate().toString(),
-                    FieldType.LocalDateTime
+                    dto.date().toString(),
+                    FieldType.DateTime
             ));
         }
 
         if (dto.cost() != null) {
             fields.add(new EventChangedFieldDto(
                     "cost",
-                    dto.cost().toString(),
                     source.getCost().toString(),
-                    FieldType.Long
+                    dto.cost().toString(),
+                    FieldType.Decimal
             ));
         }
 
         if (dto.duration() != null) {
             fields.add(new EventChangedFieldDto(
                     "duration",
-                    dto.duration().toString(),
                     source.getDuration().toString(),
+                    dto.duration().toString(),
                     FieldType.String
             ));
         }
@@ -139,9 +139,9 @@ public class EventMapper {
         if (location != null) {
             fields.add(new EventChangedFieldDto(
                     "location",
-                    location.getId().toString(),
                     source.getEventLocation().getId().toString(),
-                    FieldType.Long
+                    location.getId().toString(),
+                    FieldType.Decimal
             ));
         }
 
@@ -162,8 +162,8 @@ public class EventMapper {
 
         fields.add(new EventChangedFieldDto(
                 "status",
-                newStatus.name(),
                 source.getStatus().toString(),
+                newStatus.name(),
                 FieldType.String
         ));
 

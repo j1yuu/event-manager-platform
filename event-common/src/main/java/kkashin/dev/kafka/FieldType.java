@@ -1,8 +1,10 @@
 package kkashin.dev.kafka;
 
 public enum FieldType {
-    Long,
+    Decimal,
     String,
     Integer,
-    LocalDateTime,
+    DateTime,
+    Duration,
+    Enum
 }
