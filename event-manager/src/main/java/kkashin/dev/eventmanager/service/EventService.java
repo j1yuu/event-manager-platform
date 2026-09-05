@@ -87,7 +87,7 @@ public class EventService {
 
         checkCanManage(source);
 
-        EventLocation location = source.getEventLocation();
+        EventLocation location = null;
         if (eventUpdateDto.locationId() != null) {
             location = eventLocationRepository.findById(eventUpdateDto.locationId()).orElseThrow(
                     () -> new ManagerNotFoundException("Location with given id was not found: %s".formatted(eventUpdateDto.locationId()))
@@ -98,7 +98,7 @@ public class EventService {
         if (maxPlaces < source.getOccupiedPlaces()) {
             throw new ManagerBadRequestException("Event maxPlaces cannot be less than occupiedPlaces");
         }
-        if (maxPlaces > location.getCapacity()) {
+        if (maxPlaces > source.getEventLocation().getCapacity()) {
             throw new ManagerBadRequestException("Event maxPlaces couldn't be more than location capacity");
         }
 
