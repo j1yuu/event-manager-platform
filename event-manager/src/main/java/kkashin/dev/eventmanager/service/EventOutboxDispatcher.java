@@ -54,7 +54,12 @@ public class EventOutboxDispatcher {
                 return;
             }
 
-            service.markSent(message);
+            if (!service.markSent(message)) {
+                log.warn(
+                        "Outbox message {} was published, but its claim is no longer owned; duplicate delivery is possible",
+                        message.id()
+                );
+            };
         }
     }
 }

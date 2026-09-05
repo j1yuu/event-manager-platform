@@ -26,21 +26,12 @@ public interface EventOutboxRepository extends JpaRepository<EventOutbox, Long> 
     Optional<EventOutbox> claimNext(@Param("now") Instant now);
 
     @Modifying
-    @Query("""
-    update EventOutbox e
-    set e.status = kkashin.dev.eventmanager.model.enums.OutboxStatus.PENDING
-    where e.status = kkashin.dev.eventmanager.model.enums.OutboxStatus.PROCESSING
-        and e.lockedUntil < :now
-""")
-    void unlockStuck(@Param("now") Instant now);
-
-    @Modifying
-    @Query("""
-    update EventOutbox e
-    set e.status = kkashin.dev.eventmanager.model.enums.OutboxStatus.PENDING
-    where e.id = :id
-""")
-    void unlockById(@Param("id") Long id);
+    @Query(value = """
+    delete from events_outbox e
+    where e.claim_token = null
+        and e.status = 'SENT'
+""", nativeQuery = true)
+    void clearSent(@Param("now") Instant now);
 
     @Modifying
     @Query(value = """

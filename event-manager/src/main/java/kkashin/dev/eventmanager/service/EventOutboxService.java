@@ -57,10 +57,10 @@ public class EventOutboxService {
 
     @Scheduled(fixedDelayString = "${event-manager.scheduler.outbox.delay-ms:60000}")
     @Transactional
-    public void unlockStuck() {
+    public void clearSent() {
         var now = clock.instant();
 
-        repository.unlockStuck(now);
+        repository.clearSent(now);
     }
 
     @Transactional
