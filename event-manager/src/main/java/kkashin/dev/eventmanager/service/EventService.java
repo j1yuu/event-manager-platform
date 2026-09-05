@@ -3,6 +3,7 @@ package kkashin.dev.eventmanager.service;
 import kkashin.dev.eventmanager.exceptions.models.ManagerForbiddenException;
 import kkashin.dev.eventmanager.exceptions.models.ManagerBadRequestException;
 import kkashin.dev.eventmanager.exceptions.models.ManagerNotFoundException;
+import kkashin.dev.eventmanager.kafka.EventUpdatedProducer;
 import kkashin.dev.eventmanager.model.dto.event.CreateEventDto;
 import kkashin.dev.eventmanager.model.dto.event.EventDto;
 import kkashin.dev.eventmanager.model.dto.event.EventSearchDto;
@@ -10,10 +11,10 @@ import kkashin.dev.eventmanager.model.dto.event.EventUpdateDto;
 import kkashin.dev.eventmanager.model.entity.EventEntity;
 import kkashin.dev.eventmanager.model.entity.EventLocation;
 import kkashin.dev.eventmanager.model.enums.EventStatus;
-import kkashin.dev.eventmanager.model.enums.UserRole;
 import kkashin.dev.eventmanager.model.mappers.EventMapper;
 import kkashin.dev.eventmanager.repository.EventLocationRepository;
 import kkashin.dev.eventmanager.repository.EventRepository;
+import kkashin.dev.securityConstants.UserRoles;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,25 +22,29 @@ import java.util.List;
 
 @Service
 public class EventService {
-    private EventRepository eventRepository;
-    private EventLocationRepository eventLocationRepository;
+    private final EventRepository eventRepository;
+    private final EventLocationRepository eventLocationRepository;
 
-    private EventMapper eventMapper;
-    private UserService userService;
-    private EventSearchFilter searchFilter;
+    private final UserService userService;
+    private final EventMapper eventMapper;
+    private final EventSearchFilter searchFilter;
+    private final EventOutboxService outboxService;
+
 
     public EventService(
             EventRepository eventRepository,
             EventLocationRepository eventLocationRepository,
             EventMapper eventMapper,
             UserService userService,
-            EventSearchFilter searchFilter
+            EventSearchFilter searchFilter,
+            EventOutboxService outboxService
     ) {
         this.eventRepository = eventRepository;
         this.eventLocationRepository = eventLocationRepository;
         this.eventMapper = eventMapper;
         this.userService = userService;
         this.searchFilter = searchFilter;
+        this.outboxService = outboxService;
     }
 
     @Transactional
@@ -78,6 +83,8 @@ public class EventService {
     @Transactional
     public EventDto updateEvent(Long eventId, EventUpdateDto eventUpdateDto) {
         var source = findEventOrError(eventId);
+        var user = userService.getCurrentUser();
+
         checkCanManage(source);
 
         EventLocation location = source.getEventLocation();
@@ -95,8 +102,11 @@ public class EventService {
             throw new ManagerBadRequestException("Event maxPlaces couldn't be more than location capacity");
         }
 
+        var kafkaDto = eventMapper.mapKafkaEvent(eventUpdateDto, source, location, user);
         var updated = eventMapper.fromUpdateDto(eventUpdateDto, source, location);
         var saved = eventRepository.save(updated);
+
+        outboxService.enqueue(kafkaDto);
 
         return eventMapper.fromEntity(saved);
     }
@@ -149,7 +159,7 @@ public class EventService {
 
     private void checkCanManage(EventEntity event) {
         var currentUser = userService.getCurrentUser();
-        if (currentUser.getUserRole() != UserRole.ADMIN && !event.getUser().getId().equals(currentUser.getId())) {
+        if (currentUser.getUserRole() != UserRoles.ADMIN && !event.getUser().getId().equals(currentUser.getId())) {
             throw new ManagerForbiddenException("Only the event owner or an administrator can modify this event");
         }
     }

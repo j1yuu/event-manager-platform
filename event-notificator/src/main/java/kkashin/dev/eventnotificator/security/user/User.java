@@ -1,5 +1,6 @@
 package kkashin.dev.eventnotificator.security.user;
 
+import kkashin.dev.securityConstants.UserRoles;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,7 +18,7 @@ import java.util.List;
 public class User implements UserDetails {
     private Long id;
     private String loginNormalized;
-    private String role;
+    private UserRoles role;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -1,6 +1,6 @@
 package kkashin.dev.kafka;
 
-public enum FiledType {
+public enum FieldType {
     Long,
     String,
     Integer,

@@ -2,7 +2,7 @@ package kkashin.dev.eventmanager.model.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
-import kkashin.dev.eventmanager.model.enums.UserRole;
+import kkashin.dev.securityConstants.UserRoles;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -47,7 +47,7 @@ public class UserEntity {
 
     @Enumerated(value = EnumType.STRING)
     @Column(name = "role", nullable = false)
-    private UserRole role;
+    private UserRoles role;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -70,7 +70,7 @@ public class UserEntity {
             String loginNormalized,
             String passwordHash,
             Integer age,
-            UserRole role
+            UserRoles role
     ) {
         this.login = login;
         this.loginNormalized = loginNormalized;

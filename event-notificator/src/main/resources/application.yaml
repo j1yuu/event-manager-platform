@@ -59,7 +59,3 @@ event-manager:
       event-changed:
         name: ${KAFKA_EVENT_CHANGED_TOPIC:event-manager.event-changed}
         group-id: ${KAFKA_EVENT_CHANGED_CONSUMER_GROUP:event-notificator-event-changed}
-
-      user-created:
-        name: ${KAFKA_USER_CREATED_TOPIC:event-manager.user-created}
-        group-id: ${KAFKA_USER_CREATED_CONSUMER_GROUP:event-notificator-user-created}

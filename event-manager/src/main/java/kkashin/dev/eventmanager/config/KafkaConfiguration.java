@@ -15,7 +15,6 @@ public class KafkaConfiguration {
             KafkaTopicsProperties kafkaTopicsProperties
     ) {
         var eventUpdated = kafkaTopicsProperties.topics().eventUpdated();
-        var userCreated = kafkaTopicsProperties.topics().userCreated();
 
         return new KafkaAdmin.NewTopics(
                 TopicBuilder.name(eventUpdated.name())
@@ -32,22 +31,6 @@ public class KafkaConfiguration {
                         .config(
                                 TopicConfig.MIN_IN_SYNC_REPLICAS_CONFIG,
                                 Integer.toString(eventUpdated.minInSyncReplicas())
-                        )
-                        .build(),
-                TopicBuilder.name(userCreated.name())
-                        .partitions(userCreated.partitions())
-                        .replicas(userCreated.replicas())
-                        .config(
-                                TopicConfig.CLEANUP_POLICY_CONFIG,
-                                TopicConfig.CLEANUP_POLICY_DELETE
-                        )
-                        .config(
-                                TopicConfig.RETENTION_MS_CONFIG,
-                                Long.toString(userCreated.retention().toMillis())
-                        )
-                        .config(
-                                TopicConfig.MIN_IN_SYNC_REPLICAS_CONFIG,
-                                Integer.toString(userCreated.minInSyncReplicas())
                         )
                         .build()
         );

@@ -1,7 +1,7 @@
 package kkashin.dev.eventmanager.security.user;
 
 import kkashin.dev.eventmanager.model.entity.UserEntity;
-import kkashin.dev.eventmanager.model.enums.UserRole;
+import kkashin.dev.securityConstants.UserRoles;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
@@ -20,7 +20,7 @@ public class User implements UserDetails {
     private String loginNormalized;
     private Integer age;
     private String passwordHash;
-    private UserRole userRole;
+    private UserRoles userRole;
 
     public static User fromEntity(UserEntity userEntity) {
         return new User(

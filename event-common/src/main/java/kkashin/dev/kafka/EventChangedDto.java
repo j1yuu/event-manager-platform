@@ -5,7 +5,7 @@ import java.util.List;
 
 public record EventChangedDto(
     String messageId,
-    String eventType,
+    EventType eventType,
     Long eventId,
     Instant occurredAt,
     Long ownerId,
