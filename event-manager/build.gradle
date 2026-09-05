@@ -1,0 +1,5 @@
+description = 'Event management service'
+
+if (file("gradle/local.gradle").exists()) {
+    apply from: "gradle/local.gradle"
+}

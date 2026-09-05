@@ -1,11 +1,133 @@
 services:
-  db:
-    container_name: event-manager
-    image: postgres
-    restart: always
+  event-manager-db:
+    container_name: event-manager-db
+    image: postgres:18-alpine
+    restart: unless-stopped
+
     environment:
-      - POSTGRES_USER=${DB_USERNAME}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_DATABASE}
+      - POSTGRES_USER=${EM_DB_USERNAME}
+      - POSTGRES_PASSWORD=${EM_DB_PASSWORD}
+      - POSTGRES_DB=${EM_DB_DATABASE}
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
     ports:
-      - "${DB_PORT}:5432"
+      - "${EM_DB_PORT:-5432}:5432"
+
+    volumes:
+      - event-manager-db-data:/var/lib/postgresql
+
+  event-notificator-db:
+    container_name: event-notificator-db
+    image: postgres:18-alpine
+    restart: unless-stopped
+
+    environment:
+      - POSTGRES_USER=${EN_DB_USERNAME}
+      - POSTGRES_PASSWORD=${EN_DB_PASSWORD}
+      - POSTGRES_DB=${EN_DB_DATABASE}
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+    ports:
+      - "${EN_DB_PORT:-5433}:5432"
+
+    volumes:
+      - event-notificator-db-data:/var/lib/postgresql
+
+  event-manager-broker:
+    container_name: event-manager-broker
+    image: apache/kafka:4.2.0
+
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: "broker,controller"
+
+      KAFKA_LISTENERS: >-
+        CONTROLLER://:29093,
+        PLAINTEXT_HOST://:9092,
+        PLAINTEXT://:19092
+
+      KAFKA_ADVERTISED_LISTENERS: >-
+        PLAINTEXT_HOST://localhost:${KAFKA_BROKER_PORT:-9092},
+        PLAINTEXT://event-manager-broker:19092
+
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: >-
+        CONTROLLER:PLAINTEXT,
+        PLAINTEXT_HOST:PLAINTEXT,
+        PLAINTEXT:PLAINTEXT
+
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+
+      KAFKA_CONTROLLER_QUORUM_VOTERS: >-
+        1@event-manager-broker:29093
+
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+
+      KAFKA_SHARE_COORDINATOR_STATE_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_SHARE_COORDINATOR_STATE_TOPIC_MIN_ISR: 1
+
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+
+      KAFKA_LOG_DIRS: "/var/lib/kafka/data"
+
+      CLUSTER_ID: ${KAFKA_CLUSTER_ID:-MkU3OEVBNTcwNTJENDM2Qk}
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:19092 --list >/dev/null 2>&1"
+        ]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 15s
+
+    ports:
+      - "${KAFKA_BROKER_PORT:-9092}:9092"
+
+    volumes:
+      - event-manager-broker-data:/var/lib/kafka/data
+
+  kafka-ui:
+    image: kafbat/kafka-ui:latest
+    container_name: event-manager-kafka-ui
+    ports:
+      - "5172:8080"
+    depends_on:
+      event-manager-broker:
+        condition: service_healthy
+    environment:
+      KAFKA_CLUSTERS_0_NAME: 'local-cluster'
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: 'event-manager-broker:19092'
+      DYNAMIC_CONFIG_ENABLED: 'true'
+
+volumes:
+  event-manager-db-data:
+  event-notificator-db-data:
+  event-manager-broker-data:
