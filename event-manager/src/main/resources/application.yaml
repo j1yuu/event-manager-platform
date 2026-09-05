@@ -38,6 +38,8 @@ spring:
       properties:
         "[enable.idempotence]": true
         "[spring.json.add.type.headers]": false
+        "[request.timeout.ms]": 10000
+        "[delivery.timeout.ms]": 30000
 
 logging:
   level:
@@ -63,6 +65,12 @@ event-manager:
   admin:
     login: ${APP_ADMIN_USERNAME}
     password: ${APP_ADMIN_PASSWORD}
+  scheduler:
+    status-delay-ms: 60000
+    outbox:
+      delay-ms: 60000
+      lease-duration: 5m
+      ack-timeout: 35s
   kafka:
     topics:
       event-updated:
@@ -71,10 +79,3 @@ event-manager:
         replicas: ${KAFKA_EVENT_CHANGED_REPLICAS:1}
         retention: ${KAFKA_EVENT_CHANGED_RETENTION:7d}
         min-in-sync-replicas: ${KAFKA_EVENT_CHANGED_MIN_ISR:1}
-
-      user-created:
-        name: ${KAFKA_USER_CREATED_TOPIC:event-manager.user-created}
-        partitions: ${KAFKA_USER_CREATED_PARTITIONS:3}
-        replicas: ${KAFKA_USER_CREATED_REPLICAS:1}
-        retention: ${KAFKA_USER_CREATED_RETENTION:7d}
-        min-in-sync-replicas: ${KAFKA_USER_CREATED_MIN_ISR:1}

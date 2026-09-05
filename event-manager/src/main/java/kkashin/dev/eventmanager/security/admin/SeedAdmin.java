@@ -1,8 +1,8 @@
 package kkashin.dev.eventmanager.security.admin;
 
 import kkashin.dev.eventmanager.model.entity.UserEntity;
-import kkashin.dev.eventmanager.model.enums.UserRole;
 import kkashin.dev.eventmanager.repository.UserRepository;
+import kkashin.dev.securityConstants.UserRoles;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -30,7 +30,7 @@ public class SeedAdmin implements ApplicationRunner {
             admin.setLogin(adminProperties.login());
             admin.setLoginNormalized(loginNormalized);
             admin.setPasswordHash(passwordEncoder.encode(adminProperties.password()));
-            admin.setRole(UserRole.ADMIN);
+            admin.setRole(UserRoles.ADMIN);
             admin.setAge(42);
 
             userRepository.save(admin);

@@ -1,7 +1,7 @@
 package kkashin.dev.eventmanager.model.dto.user;
 
 import jakarta.validation.constraints.*;
-import kkashin.dev.eventmanager.model.enums.UserRole;
+import kkashin.dev.securityConstants.UserRoles;
 
 public record UserDto(
         @NotNull
@@ -15,6 +15,6 @@ public record UserDto(
         Integer age,
         @NotNull
         @NotBlank
-        UserRole role
+        UserRoles role
 ) {
 }

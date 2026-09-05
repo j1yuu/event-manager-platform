@@ -1,7 +1,6 @@
 package kkashin.dev.eventnotificator.configuration;
 
 import kkashin.dev.kafka.EventChangedDto;
-import kkashin.dev.kafka.UserCreatedDto;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.boot.kafka.autoconfigure.KafkaProperties;
 import org.springframework.context.annotation.Bean;
@@ -27,27 +26,10 @@ public class KafkaConsumerConfiguration {
     }
 
     @Bean
-    public ConsumerFactory<String, UserCreatedDto> userCreatedDtoConsumerFactory(
-            KafkaProperties properties
-    ) {
-        return createConsumerFactory(
-                properties,
-                UserCreatedDto.class
-        );
-    }
-
-    @Bean
     public ConcurrentKafkaListenerContainerFactory<String, EventChangedDto> eventChangedDtoKafkaListenerContainerFactory(
             ConsumerFactory<String, EventChangedDto> eventChangedDtoConsumerFactory
     ) {
         return createContainerFactory(eventChangedDtoConsumerFactory);
-    }
-
-    @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, UserCreatedDto> userCreatedDtoKafkaListenerContainerFactory(
-            ConsumerFactory<String, UserCreatedDto> userCreatedDtoConsumerFactory
-    ) {
-        return createContainerFactory(userCreatedDtoConsumerFactory);
     }
 
     private <T> ConsumerFactory<String, T> createConsumerFactory(

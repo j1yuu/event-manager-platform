@@ -3,7 +3,7 @@ package kkashin.dev.eventmanager.model.mappers;
 import kkashin.dev.eventmanager.model.dto.user.RegisterUserDto;
 import kkashin.dev.eventmanager.model.dto.user.UserDto;
 import kkashin.dev.eventmanager.model.entity.UserEntity;
-import kkashin.dev.eventmanager.model.enums.UserRole;
+import kkashin.dev.securityConstants.UserRoles;
 import org.springframework.stereotype.Service;
 
 import java.util.Locale;
@@ -27,7 +27,7 @@ public class UserMapper {
         user.setLoginNormalized(dto.login().trim().toLowerCase(Locale.ROOT));
         user.setAge(dto.age());
         user.setPasswordHash(passwordHash);
-        user.setRole(UserRole.USER);
+        user.setRole(UserRoles.USER);
 
         return user;
     }

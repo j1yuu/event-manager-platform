@@ -4,6 +4,9 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import kkashin.dev.eventnotificator.security.user.User;
+import kkashin.dev.securityConstants.SecurityClaims;
+import kkashin.dev.securityConstants.UserRoles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -32,7 +35,17 @@ public class JwtFilter extends OncePerRequestFilter {
             var jwt = authorization.substring(7);
 
             try {
-                String login = jwtTokenManager.getLogin(jwt);
+                var claims = jwtTokenManager.getPayload(jwt);
+
+                var id = Long.valueOf(claims.getSubject());
+                var login = claims.get(SecurityClaims.LOGIN_CLAIM, String.class);
+                var role = claims.get(SecurityClaims.ROLE_CLAIM, UserRoles.class);
+
+                var user = new User();
+
+                user.setId(id);
+                user.setLoginNormalized(login);
+                user.setRole(role);
 
                 var authentication = new UsernamePasswordAuthenticationToken(
                         user,

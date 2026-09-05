@@ -1,11 +1,14 @@
 package kkashin.dev.eventmanager.kafka;
 
+import org.springframework.kafka.support.SendResult;
 import kkashin.dev.eventmanager.config.properties.KafkaTopicsProperties;
 import kkashin.dev.kafka.EventChangedDto;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Component
 public class EventUpdatedProducer {
@@ -21,13 +24,19 @@ public class EventUpdatedProducer {
         this.topic = properties.topics().eventUpdated().name();
     }
 
-    public void send(EventChangedDto message) {
-        var uuid = UUID.randomUUID().toString();
-
-        kafkaTemplate.send(
+    public CompletableFuture<SendResult<String, Object>> send(EventChangedDto message) {
+        return kafkaTemplate.send(
                 topic,
-                uuid,
+                message.messageId(),
                 message
         );
+    }
+
+    public CompletableFuture<Void> sendAll(List<EventChangedDto> messages) {
+        var futures = messages.stream()
+                .map(this::send)
+                .toArray(CompletableFuture<?>[]::new);
+
+        return CompletableFuture.allOf(futures);
     }
 }
