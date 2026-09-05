@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import javax.crypto.SecretKey;
 import java.time.Duration;
 
-@ConfigurationProperties(prefix = "event-manager.jwt")
+@ConfigurationProperties(prefix = "event-notificator.jwt")
 public record JwtProperties(
         String issuer,
         Duration accessTtl,

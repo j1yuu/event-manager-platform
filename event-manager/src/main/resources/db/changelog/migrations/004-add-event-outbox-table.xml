@@ -19,9 +19,7 @@
                 <constraints nullable="false"/>
             </column>
 
-            <column name="claim_token" type="VARCHAR(50)">
-                <constraints nullable="false"/>
-            </column>
+            <column name="claim_token" type="VARCHAR(50)" />
 
             <column name="status" type="VARCHAR(50)"/>
 
