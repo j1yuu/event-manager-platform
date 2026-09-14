@@ -8,6 +8,7 @@ public record EventChangedDto(
     EventType eventType,
     Long eventId,
     Instant occurredAt,
+    String eventName,
     Long ownerId,
     Long changedById,
     List<Long> subscribers,

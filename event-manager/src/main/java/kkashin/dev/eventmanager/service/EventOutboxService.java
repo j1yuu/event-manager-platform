@@ -1,6 +1,5 @@
 package kkashin.dev.eventmanager.service;
 
-import kkashin.dev.eventmanager.kafka.EventUpdatedProducer;
 import kkashin.dev.eventmanager.model.domain.ClaimedEventOutbox;
 import kkashin.dev.eventmanager.model.entity.EventOutbox;
 import kkashin.dev.eventmanager.model.enums.OutboxStatus;

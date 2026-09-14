@@ -1,4 +1,4 @@
-package kkashin.dev.eventmanager.exceptions.models;
+package kkashin.dev.exceptions;
 
 public class ManagerBadRequestException extends RuntimeException {
     public ManagerBadRequestException(String message) {

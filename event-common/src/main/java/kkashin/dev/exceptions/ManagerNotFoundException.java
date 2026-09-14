@@ -1,4 +1,4 @@
-package kkashin.dev.eventmanager.exceptions.models;
+package kkashin.dev.exceptions;
 
 public class ManagerNotFoundException extends RuntimeException {
     public ManagerNotFoundException(String message) {
