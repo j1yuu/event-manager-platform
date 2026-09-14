@@ -1,10 +1,13 @@
-package kkashin.dev.eventmanager.exceptions;
+package kkashin.dev.eventnotificator.exceptions;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
-import kkashin.dev.eventmanager.model.dto.HttpExceptionDto;
-import kkashin.dev.exceptions.*;
+import kkashin.dev.eventnotificator.model.dto.HttpExceptionDto;
+import kkashin.dev.exceptions.ManagerBadRequestException;
+import kkashin.dev.exceptions.ManagerForbiddenException;
+import kkashin.dev.exceptions.ManagerNotFoundException;
+import kkashin.dev.exceptions.ManagerUnauthorizedRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;

@@ -1,7 +1,8 @@
 package kkashin.dev.eventnotificator.model.entity;
 
 import jakarta.persistence.*;
-import kkashin.dev.kafka.EventChangedDto;
+import kkashin.dev.kafka.EventChangedFieldDto;
+import kkashin.dev.kafka.EventType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,6 +11,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
+import java.util.List;
 
 @Entity
 @Table(name = "notification_payloads")
@@ -26,7 +28,10 @@ public class NotificationPayload {
     private String messageId;
 
     @Column(name = "event_type", nullable = false)
-    private String eventType;
+    private EventType eventType;
+
+    @Column(name = "event_name", nullable = false)
+    private String eventName;
 
     @Column(name = "event_id", nullable = false)
     private Long eventId;
@@ -39,10 +44,10 @@ public class NotificationPayload {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
-    private EventChangedDto payload;
+    private List<EventChangedFieldDto> payload;
 
-    @OneToOne(mappedBy = "payload")
-    private Notification notification;
+    @OneToMany(mappedBy = "payload", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notification> notifications;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

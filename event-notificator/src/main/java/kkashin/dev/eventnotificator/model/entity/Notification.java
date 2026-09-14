@@ -23,10 +23,10 @@ public class Notification {
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "is_read")
-    private Boolean isRead;
+    @Column(name = "is_read", nullable = false)
+    private Boolean isRead = false;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToOne
     @JoinColumn(name = "payload_id")
     private NotificationPayload payload;
 

@@ -49,6 +49,8 @@ logging:
     org.springframework.web: INFO
 
 event-notificator:
+  scheduler:
+    status-delay-ms: 60000
   jwt:
     issuer: ${JWT_ISSUER}
     access-ttl: ${JWT_TTL}

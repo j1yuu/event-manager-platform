@@ -1,5 +1,6 @@
 package kkashin.dev.eventnotificator.kafka;
 
+import kkashin.dev.eventnotificator.service.NotificationService;
 import kkashin.dev.kafka.EventChangedDto;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
@@ -7,7 +8,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class EventChangedConsumer {
 
-    public EventChangedConsumer() {}
+    private final NotificationService service;
+
+    public EventChangedConsumer(
+            NotificationService service
+    ) {
+        this.service = service;
+    }
 
     @KafkaListener(
             topics = "${event-notificator.topics.event-changed.name}",
@@ -15,6 +22,6 @@ public class EventChangedConsumer {
             containerFactory = "eventChangedDtoKafkaListenerContainerFactory"
     )
     public void consume(EventChangedDto message) {
-        System.out.println(message);
+        service.consume(message);
     }
 }
