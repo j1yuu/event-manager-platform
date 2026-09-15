@@ -12,6 +12,6 @@ public record EventChangedDto(
     Long ownerId,
     Long changedById,
     List<Long> subscribers,
-    List<EventChangedFieldDto> changedFields
+    List<EventChangedFieldDto> changes
 ) {
 }

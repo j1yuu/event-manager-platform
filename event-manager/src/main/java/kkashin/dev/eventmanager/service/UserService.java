@@ -1,8 +1,8 @@
 package kkashin.dev.eventmanager.service;
 
 import jakarta.persistence.EntityNotFoundException;
-import kkashin.dev.eventmanager.exceptions.models.ManagerBadRequestException;
-import kkashin.dev.eventmanager.exceptions.models.ManagerUnauthorizedRequestException;
+import kkashin.dev.exceptions.ManagerBadRequestException;
+import kkashin.dev.exceptions.ManagerUnauthorizedRequestException;
 import kkashin.dev.eventmanager.model.dto.user.JwtTokenDto;
 import kkashin.dev.eventmanager.model.dto.user.LoginUserDto;
 import kkashin.dev.eventmanager.model.dto.user.RegisterUserDto;

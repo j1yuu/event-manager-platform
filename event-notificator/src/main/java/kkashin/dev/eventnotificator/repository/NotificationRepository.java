@@ -37,7 +37,24 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     @Query(value = """
         delete from notifications
         where is_read = true
-            and read_at <= :timestapmp
+            and created_at <= :timestamp
 """, nativeQuery = true)
     void removeOldReads(@Param("timestamp") Instant timestamp);
+
+    @Query(value = """
+    insert into notifications (
+                               user_id,
+                               payload_id,
+                               is_read,
+                               created_at
+    )
+    select user_id,
+           :payloadId,
+           false,
+           now()
+    from unnest(cast(:ids as bigint[])) as user_id
+    on conflict (user_id, payload_id)
+    do nothing
+""", nativeQuery = true)
+    void insertIfAbsentBatch(@Param("ids") Long[] ids, @Param("payloadId") Long payloadId);
 }

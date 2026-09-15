@@ -14,7 +14,6 @@ public class NotificationMapper {
                 notification.getPayload().getEventId(),
                 notification.getCreatedAt(),
                 notification.getIsRead(),
-                "",
                 new NotificationDto.Payload(
                         notification.getPayload().getEventType(),
                         notification.getPayload().getCreatedAt(),

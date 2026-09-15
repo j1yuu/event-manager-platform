@@ -1,6 +1,7 @@
 package kkashin.dev.eventnotificator.controller;
 
 import jakarta.validation.Valid;
+import kkashin.dev.eventnotificator.model.dto.MarkReadRequestDto;
 import kkashin.dev.eventnotificator.model.dto.NotificationDto;
 import kkashin.dev.eventnotificator.service.NotificationService;
 import org.springframework.http.HttpStatus;
@@ -21,15 +22,15 @@ public class NotificationsController {
     }
 
     @GetMapping
-    public ResponseEntity<List<NotificationDto>> getUnreads() {
-        var notifications = notificationService.getUnreads();
+    public ResponseEntity<List<NotificationDto>> getUnread() {
+        var notifications = notificationService.getUnread();
 
         return ResponseEntity.ok(notifications);
     }
 
     @PostMapping
-    public ResponseEntity<Void> markRead(@RequestBody @Valid List<Long> notificationIds) {
-        notificationService.readNotifications(notificationIds);
+    public ResponseEntity<Void> markRead(@RequestBody @Valid MarkReadRequestDto dto) {
+        notificationService.readNotifications(dto);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

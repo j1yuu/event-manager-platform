@@ -9,7 +9,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.Instant;
 
 @Entity
-@Table(name = "notifications")
+@Table(name = "notifications", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"user_id", "payload_id"})
+})
 @Getter
 @Setter
 @NoArgsConstructor

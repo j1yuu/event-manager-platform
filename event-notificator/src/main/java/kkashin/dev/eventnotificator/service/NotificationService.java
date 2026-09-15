@@ -1,7 +1,7 @@
 package kkashin.dev.eventnotificator.service;
 
+import kkashin.dev.eventnotificator.model.dto.MarkReadRequestDto;
 import kkashin.dev.eventnotificator.model.dto.NotificationDto;
-import kkashin.dev.eventnotificator.model.mappers.EventChangedMapper;
 import kkashin.dev.eventnotificator.model.mappers.NotificationMapper;
 import kkashin.dev.eventnotificator.repository.NotificationPayloadRepository;
 import kkashin.dev.eventnotificator.repository.NotificationRepository;
@@ -19,7 +19,6 @@ public class NotificationService {
     private final NotificationPayloadRepository payloadRepository;
 
     private final UserService userService;
-    private final EventChangedMapper eventChangedMapper;
     private final NotificationMapper notificationMapper;
 
     private final Clock clock;
@@ -28,14 +27,12 @@ public class NotificationService {
             NotificationRepository notificationRepository,
             NotificationPayloadRepository payloadRepository,
             UserService userService,
-            EventChangedMapper eventChangedMapper,
             NotificationMapper notificationMapper,
             Clock clock
     ) {
         this.notificationRepository = notificationRepository;
         this.payloadRepository = payloadRepository;
         this.userService = userService;
-        this.eventChangedMapper = eventChangedMapper;
         this.notificationMapper = notificationMapper;
         this.clock = clock;
     }
@@ -44,16 +41,21 @@ public class NotificationService {
     public void consume(EventChangedDto message) {
         var userIds = message.subscribers();
 
-        var payload = eventChangedMapper.toPayload(message);
-        var notifications = userIds.stream()
-                .map(id -> eventChangedMapper.toNotification(id, payload))
-                .toList();
+        var payloadId = payloadRepository.insertIfAbsentReturningId(
+                message.messageId(),
+                message.eventType(),
+                message.eventName(),
+                message.eventId(),
+                message.changedById(),
+                message.ownerId(),
+                message.changes(),
+                message.occurredAt()
+        );
 
-        payloadRepository.save(payload);
-        notificationRepository.saveAll(notifications);
+        notificationRepository.insertIfAbsentBatch(userIds.toArray(Long[]::new), payloadId);
     }
 
-    public List<NotificationDto> getUnreads() {
+    public List<NotificationDto> getUnread() {
         var currentUser = userService.currentUser();
 
         var notificationEntities = notificationRepository.getNotificationsByUserId(currentUser.getId());
@@ -64,12 +66,10 @@ public class NotificationService {
     }
 
     @Transactional
-    public void readNotifications(List<Long> notificationIds) {
-        if (notificationIds.isEmpty()) return;
-
+    public void readNotifications(MarkReadRequestDto dto) {
         var currentUser = userService.currentUser();
         var now = clock.instant();
 
-        notificationRepository.markRead(notificationIds, now, currentUser.getId());
+        notificationRepository.markRead(dto.notificationIds(), now, currentUser.getId());
     }
 }
