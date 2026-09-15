@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
+import kkashin.dev.eventmanager.model.enums.EventStatus;
 
 import java.time.LocalDateTime;
 
@@ -16,6 +17,8 @@ public record EventUpdateDto(
 
         @FutureOrPresent
         LocalDateTime date,
+
+        EventStatus status,
 
         @Min(1)
         Long cost,

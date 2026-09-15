@@ -1,7 +1,7 @@
 package kkashin.dev.eventmanager.service;
 
-import kkashin.dev.eventmanager.exceptions.models.ManagerBadRequestException;
-import kkashin.dev.eventmanager.exceptions.models.ManagerNotFoundException;
+import kkashin.dev.exceptions.ManagerBadRequestException;
+import kkashin.dev.exceptions.ManagerNotFoundException;
 import kkashin.dev.eventmanager.model.dto.event.EventDto;
 import kkashin.dev.eventmanager.model.enums.EventStatus;
 import kkashin.dev.eventmanager.model.mappers.EventMapper;

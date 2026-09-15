@@ -14,7 +14,9 @@ import java.time.Instant;
 import java.util.List;
 
 @Entity
-@Table(name = "notification_payloads")
+@Table(name = "notification_payloads", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"message_id"})
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -27,6 +29,7 @@ public class NotificationPayload {
     @Column(name = "message_id", nullable = false)
     private String messageId;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "event_type", nullable = false)
     private EventType eventType;
 
@@ -48,6 +51,9 @@ public class NotificationPayload {
 
     @OneToMany(mappedBy = "payload", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Notification> notifications;
+
+    @Column(name = "occurred_at", nullable = false, updatable = false)
+    private Instant occurredAt;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

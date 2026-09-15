@@ -95,8 +95,7 @@ public class EventMapper {
             fields.add(new EventChangedFieldDto(
                     "name",
                     source.getName(),
-                    dto.name(),
-                    FieldType.String
+                    dto.name()
             ));
         }
 
@@ -104,8 +103,7 @@ public class EventMapper {
             fields.add(new EventChangedFieldDto(
                     "maxPlaces",
                     source.getMaxPlaces().toString(),
-                    dto.maxPlaces().toString(),
-                    FieldType.Integer
+                    dto.maxPlaces().toString()
             ));
         }
 
@@ -113,8 +111,7 @@ public class EventMapper {
             fields.add(new EventChangedFieldDto(
                     "date",
                     source.getDate().toString(),
-                    dto.date().toString(),
-                    FieldType.DateTime
+                    dto.date().toString()
             ));
         }
 
@@ -122,8 +119,7 @@ public class EventMapper {
             fields.add(new EventChangedFieldDto(
                     "cost",
                     source.getCost().toString(),
-                    dto.cost().toString(),
-                    FieldType.Decimal
+                    dto.cost().toString()
             ));
         }
 
@@ -131,8 +127,7 @@ public class EventMapper {
             fields.add(new EventChangedFieldDto(
                     "duration",
                     source.getDuration().toString(),
-                    dto.duration().toString(),
-                    FieldType.String
+                    dto.duration().toString()
             ));
         }
 
@@ -140,14 +135,13 @@ public class EventMapper {
             fields.add(new EventChangedFieldDto(
                     "location",
                     source.getEventLocation().getId().toString(),
-                    location.getId().toString(),
-                    FieldType.Decimal
+                    location.getId().toString()
             ));
         }
 
         return new EventChangedDto(
                 UUID.randomUUID().toString(),
-                EventType.UPDATE,
+                EventType.EVENT_UPDATED,
                 source.getId(),
                 clock.instant(),
                 source.getName(),
@@ -158,19 +152,18 @@ public class EventMapper {
         );
     }
 
-    public EventChangedDto mapKafkaEventScheduler(EventEntity source, EventStatus newStatus) {
+    public EventChangedDto mapKafkaEventStatus(EventEntity source, EventStatus newStatus) {
         List<EventChangedFieldDto> fields = new ArrayList<>();
 
         fields.add(new EventChangedFieldDto(
                 "status",
                 source.getStatus().toString(),
-                newStatus.name(),
-                FieldType.String
+                newStatus.name()
         ));
 
         return new EventChangedDto(
                 UUID.randomUUID().toString(),
-                EventType.UPDATE,
+                EventType.EVENT_UPDATED,
                 source.getId(),
                 clock.instant(),
                 source.getName(),

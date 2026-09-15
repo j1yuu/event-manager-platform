@@ -12,7 +12,6 @@ public record NotificationDto (
         Long eventId,
         Instant createdAt,
         Boolean isRead,
-        String message,
         Payload payload
 ) {
     public record Payload(

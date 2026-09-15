@@ -1,5 +1,6 @@
 package kkashin.dev.kafka;
 
 public enum EventType {
-    UPDATE
+    EVENT_UPDATED,
+    EVENT_CLOSED
 }

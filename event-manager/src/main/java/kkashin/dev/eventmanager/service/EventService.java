@@ -1,9 +1,8 @@
 package kkashin.dev.eventmanager.service;
 
-import kkashin.dev.eventmanager.exceptions.models.ManagerForbiddenException;
-import kkashin.dev.eventmanager.exceptions.models.ManagerBadRequestException;
-import kkashin.dev.eventmanager.exceptions.models.ManagerNotFoundException;
-import kkashin.dev.eventmanager.kafka.EventUpdatedProducer;
+import kkashin.dev.exceptions.ManagerForbiddenException;
+import kkashin.dev.exceptions.ManagerBadRequestException;
+import kkashin.dev.exceptions.ManagerNotFoundException;
 import kkashin.dev.eventmanager.model.dto.event.CreateEventDto;
 import kkashin.dev.eventmanager.model.dto.event.EventDto;
 import kkashin.dev.eventmanager.model.dto.event.EventSearchDto;
@@ -71,6 +70,10 @@ public class EventService {
         if (event.getStatus() != EventStatus.WAIT_START) {
             throw new ManagerBadRequestException("Only an event waiting to start can be cancelled");
         }
+
+        var kafkaDto = eventMapper.mapKafkaEventStatus(event, EventStatus.CANCELLED);
+        outboxService.enqueue(kafkaDto);
+
         event.setStatus(EventStatus.CANCELLED);
     }
 
@@ -92,13 +95,15 @@ public class EventService {
             location = eventLocationRepository.findById(eventUpdateDto.locationId()).orElseThrow(
                     () -> new ManagerNotFoundException("Location with given id was not found: %s".formatted(eventUpdateDto.locationId()))
             );
+        } else {
+            location = source.getEventLocation();
         }
 
         int maxPlaces = eventUpdateDto.maxPlaces() == null ? source.getMaxPlaces() : eventUpdateDto.maxPlaces();
         if (maxPlaces < source.getOccupiedPlaces()) {
             throw new ManagerBadRequestException("Event maxPlaces cannot be less than occupiedPlaces");
         }
-        if (maxPlaces > source.getEventLocation().getCapacity()) {
+        if (maxPlaces > location.getCapacity()) {
             throw new ManagerBadRequestException("Event maxPlaces couldn't be more than location capacity");
         }
 
