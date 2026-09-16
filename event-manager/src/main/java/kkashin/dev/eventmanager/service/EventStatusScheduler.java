@@ -5,6 +5,7 @@ import kkashin.dev.eventmanager.model.enums.EventStatus;
 import kkashin.dev.eventmanager.model.mappers.EventMapper;
 import kkashin.dev.eventmanager.repository.EventRepository;
 import kkashin.dev.kafka.EventChangedDto;
+import kkashin.dev.kafka.EventType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -46,7 +47,7 @@ public class EventStatusScheduler {
 
     private void updateListAndMap(List<EventEntity> entities, List<EventChangedDto> kafkaDtos, EventStatus status) {
         for (EventEntity e : entities) {
-            var mapped = mapper.mapKafkaEventStatus(e, status);
+            var mapped = mapper.mapKafkaEventStatus(e, status, null, EventType.EVENT_UPDATED);
 
             kafkaDtos.add(mapped);
             e.setStatus(status);

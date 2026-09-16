@@ -13,6 +13,7 @@ import kkashin.dev.eventmanager.model.enums.EventStatus;
 import kkashin.dev.eventmanager.model.mappers.EventMapper;
 import kkashin.dev.eventmanager.repository.EventLocationRepository;
 import kkashin.dev.eventmanager.repository.EventRepository;
+import kkashin.dev.kafka.EventType;
 import kkashin.dev.securityConstants.UserRoles;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,13 +66,14 @@ public class EventService {
 
     @Transactional
     public void deleteEvent(Long eventId) {
+        var currentUser = userService.getCurrentUser();
         var event = findEventOrError(eventId);
         checkCanManage(event);
         if (event.getStatus() != EventStatus.WAIT_START) {
             throw new ManagerBadRequestException("Only an event waiting to start can be cancelled");
         }
 
-        var kafkaDto = eventMapper.mapKafkaEventStatus(event, EventStatus.CANCELLED);
+        var kafkaDto = eventMapper.mapKafkaEventStatus(event, EventStatus.CANCELLED, currentUser.getId(), EventType.EVENT_CLOSED);
         outboxService.enqueue(kafkaDto);
 
         event.setStatus(EventStatus.CANCELLED);

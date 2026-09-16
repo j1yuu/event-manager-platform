@@ -15,6 +15,7 @@ public record NotificationDto (
         Payload payload
 ) {
     public record Payload(
+            String messageId,
             EventType eventType,
             Instant occurredAt,
             Long changedById,

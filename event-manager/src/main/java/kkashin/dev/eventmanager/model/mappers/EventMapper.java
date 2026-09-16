@@ -151,7 +151,7 @@ public class EventMapper {
         );
     }
 
-    public EventChangedDto mapKafkaEventStatus(EventEntity source, EventStatus newStatus) {
+    public EventChangedDto mapKafkaEventStatus(EventEntity source, EventStatus newStatus, Long changedById, EventType eventType) {
         List<EventChangedFieldDto> fields = new ArrayList<>();
 
         fields.add(new EventChangedFieldDto(
@@ -160,10 +160,6 @@ public class EventMapper {
                 newStatus.name()
         ));
 
-        var eventType = newStatus.equals(EventStatus.CANCELLED)
-                ? EventType.EVENT_CLOSED
-                : EventType.EVENT_UPDATED;
-
         return new EventChangedDto(
                 UUID.randomUUID().toString(),
                 eventType,
@@ -171,7 +167,7 @@ public class EventMapper {
                 clock.instant(),
                 source.getName(),
                 source.getUser().getId(),
-                null,
+                changedById,
                 source.getUsers().stream().map(UserEntity::getId).toList(),
                 fields
         );

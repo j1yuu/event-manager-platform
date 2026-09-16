@@ -23,21 +23,20 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 """, nativeQuery = true)
     int markRead(@Param("notificationIds") List<Long> notificationIds, @Param("now") Instant now, @Param("userId") Long userId);
 
-    @Query(value = """
-    select n.*
-    from notifications n
-    join notification_payloads p on p.payload_id = n.payload_id
-    where n.user_id = :userId
-        and n.is_read = false
-    order by n.created_at desc
-""", nativeQuery = true)
+    @Query("""
+    select n
+    from Notification n
+    join fetch n.payload
+    where n.userId = :userId
+        and n.isRead = false
+    order by n.createdAt desc
+""")
     List<Notification> getNotificationsByUserId(@Param("userId") Long userId);
 
     @Modifying
     @Query(value = """
         delete from notifications
-        where is_read = true
-            and created_at <= :timestamp
+        where created_at <= :timestamp
 """, nativeQuery = true)
     void removeOldReads(@Param("timestamp") Instant timestamp);
 

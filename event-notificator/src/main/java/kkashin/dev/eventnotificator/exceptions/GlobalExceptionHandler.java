@@ -102,7 +102,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<HttpExceptionDto> handleGlobalException(RuntimeException e) {
-        var body = new HttpExceptionDto("Unexpected error occurred", e.getMessage(), LocalDateTime.now());
+        var body = new HttpExceptionDto("Unexpected error occurred", null, LocalDateTime.now());
         return ResponseEntity.internalServerError().body(body);
     }
 

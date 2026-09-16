@@ -27,15 +27,15 @@ public interface EventOutboxRepository extends JpaRepository<EventOutbox, Long> 
 
     @Modifying
     @Query(value = """
-    delete from events_outbox e
-    where e.claim_token is null
-        and e.status = 'SENT'
+    delete from events_outbox
+    where claim_token is null
+        and status = 'SENT'
 """, nativeQuery = true)
     void clearSent();
 
     @Modifying
     @Query(value = """
-    update events_outbox e
+    update events_outbox
     set status = 'SENT',
         locked_until = null,
         claim_token = null
@@ -47,8 +47,8 @@ public interface EventOutboxRepository extends JpaRepository<EventOutbox, Long> 
 
     @Modifying
     @Query(value = """
-    update events_outbox e
-    set e.status = 'PENDING',
+    update events_outbox
+    set status = 'PENDING',
         locked_until = null,
         claim_token = null
     where id = :id
