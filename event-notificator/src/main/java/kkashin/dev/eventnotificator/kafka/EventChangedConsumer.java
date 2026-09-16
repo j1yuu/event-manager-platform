@@ -17,8 +17,8 @@ public class EventChangedConsumer {
     }
 
     @KafkaListener(
-            topics = "${event-notificator.topics.event-changed.name}",
-            groupId = "${event-notificator.topics.event-changed.group-id}",
+            topics = "${event-notificator.kafka.topics.event-changed.name}",
+            groupId = "${event-notificator.kafka.topics.event-changed.group-id}",
             containerFactory = "eventChangedDtoKafkaListenerContainerFactory"
     )
     public void consume(EventChangedDto message) {

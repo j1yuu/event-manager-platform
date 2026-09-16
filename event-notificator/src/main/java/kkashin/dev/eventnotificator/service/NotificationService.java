@@ -8,6 +8,7 @@ import kkashin.dev.eventnotificator.repository.NotificationRepository;
 import kkashin.dev.kafka.EventChangedDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.Clock;
 import java.util.List;
@@ -22,6 +23,7 @@ public class NotificationService {
     private final NotificationMapper notificationMapper;
 
     private final Clock clock;
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public NotificationService(
             NotificationRepository notificationRepository,
@@ -41,14 +43,16 @@ public class NotificationService {
     public void consume(EventChangedDto message) {
         var userIds = message.subscribers();
 
+        var changesMapped = objectMapper.writeValueAsString(message.changes());
+
         var payloadId = payloadRepository.insertIfAbsentReturningId(
                 message.messageId(),
-                message.eventType(),
+                message.eventType().toString(),
                 message.eventName(),
                 message.eventId(),
                 message.changedById(),
                 message.ownerId(),
-                message.changes(),
+                changesMapped,
                 message.occurredAt()
         );
 

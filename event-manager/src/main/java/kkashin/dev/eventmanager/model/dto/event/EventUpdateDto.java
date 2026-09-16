@@ -5,11 +5,11 @@ import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import kkashin.dev.eventmanager.model.enums.EventStatus;
+import org.hibernate.validator.constraints.Length;
 
 import java.time.LocalDateTime;
 
 public record EventUpdateDto(
-        @NotBlank
         String name,
 
         @PositiveOrZero

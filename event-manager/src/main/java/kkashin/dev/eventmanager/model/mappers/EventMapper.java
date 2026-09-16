@@ -11,7 +11,6 @@ import kkashin.dev.eventmanager.security.user.User;
 import kkashin.dev.kafka.EventChangedDto;
 import kkashin.dev.kafka.EventChangedFieldDto;
 import kkashin.dev.kafka.EventType;
-import kkashin.dev.kafka.FieldType;
 import org.springframework.stereotype.Component;
 
 import java.time.Clock;
@@ -161,9 +160,13 @@ public class EventMapper {
                 newStatus.name()
         ));
 
+        var eventType = newStatus.equals(EventStatus.CANCELLED)
+                ? EventType.EVENT_CLOSED
+                : EventType.EVENT_UPDATED;
+
         return new EventChangedDto(
                 UUID.randomUUID().toString(),
-                EventType.EVENT_UPDATED,
+                eventType,
                 source.getId(),
                 clock.instant(),
                 source.getName(),

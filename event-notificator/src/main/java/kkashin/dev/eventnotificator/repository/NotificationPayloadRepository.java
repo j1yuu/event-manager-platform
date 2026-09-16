@@ -20,7 +20,7 @@ public interface NotificationPayloadRepository extends JpaRepository<Notificatio
             from notifications n
             where n.payload_id = np.payload_id
        )
-""")
+""", nativeQuery = true)
     void removeWithoutNotifications();
 
     @Query(value = """
@@ -43,7 +43,7 @@ public interface NotificationPayloadRepository extends JpaRepository<Notificatio
             :changedBy,
             :ownerId,
             cast(:payload as jsonb),
-            :occurredAt
+            :occurredAt,
             now()
     )
     on conflict (message_id)
@@ -53,12 +53,12 @@ public interface NotificationPayloadRepository extends JpaRepository<Notificatio
 """, nativeQuery = true)
     Long insertIfAbsentReturningId(
             @Param("messageId") String messageId,
-            @Param("eventType") EventType eventType,
+            @Param("eventType") String eventType,
             @Param("eventName") String eventName,
             @Param("eventId") Long eventId,
             @Param("changedBy") Long changedBy,
             @Param("ownerId") Long ownerId,
-            @Param("payload") List<EventChangedFieldDto> payload,
+            @Param("payload") String payload,
             @Param("occurredAt") Instant occurredAt
     );
 }

@@ -42,6 +42,10 @@
             <column name="created_at" type="TIMESTAMP WITH TIME ZONE">
                 <constraints nullable="false"/>
             </column>
+
+            <column name="occurred_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
 
         <addUniqueConstraint

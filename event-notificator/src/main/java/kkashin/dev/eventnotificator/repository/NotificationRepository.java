@@ -17,7 +17,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
         update notifications
         set is_read = true,
             read_at = :now
-        where id in (:notificationIds)
+        where notification_id in (:notificationIds)
             and is_read = false
             and user_id = :userId
 """, nativeQuery = true)
@@ -41,6 +41,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 """, nativeQuery = true)
     void removeOldReads(@Param("timestamp") Instant timestamp);
 
+    @Modifying
     @Query(value = """
     insert into notifications (
                                user_id,

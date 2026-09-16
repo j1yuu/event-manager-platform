@@ -39,13 +39,13 @@ public class JwtFilter extends OncePerRequestFilter {
 
                 var id = Long.valueOf(claims.getSubject());
                 var login = claims.get(SecurityClaims.LOGIN_CLAIM, String.class);
-                var role = claims.get(SecurityClaims.ROLE_CLAIM, UserRoles.class);
+                var role = claims.get(SecurityClaims.ROLE_CLAIM, String.class);
 
                 var user = new User();
 
                 user.setId(id);
                 user.setLoginNormalized(login);
-                user.setRole(role);
+                user.setRole(UserRoles.valueOf(role));
 
                 var authentication = new UsernamePasswordAuthenticationToken(
                         user,
