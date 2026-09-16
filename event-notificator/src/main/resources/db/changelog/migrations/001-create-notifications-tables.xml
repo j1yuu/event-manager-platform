@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+            http://www.liquibase.org/xml/ns/dbchangelog
+            https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create-notifications-tables" author="kkashin">
+
+        <createTable tableName="notification_payloads">
+            <column name="payload_id" type="BIGINT" autoIncrement="true">
+                <constraints
+                        primaryKey="true"
+                        primaryKeyName="pk_notification_payloads"
+                        nullable="false"/>
+            </column>
+
+            <column name="message_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="event_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="event_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="event_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="changed_by" type="BIGINT"/>
+
+            <column name="owner_id" type="BIGINT"/>
+
+            <column name="payload" type="JSONB"/>
+
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint
+                tableName="notification_payloads"
+                columnNames="message_id"
+                constraintName="uk_notification_payloads_message_id"/>
+
+
+        <createTable tableName="notifications">
+            <column name="notification_id" type="BIGINT" autoIncrement="true">
+                <constraints
+                        primaryKey="true"
+                        primaryKeyName="pk_notifications"
+                        nullable="false"/>
+            </column>
+
+            <column name="user_id" type="BIGINT"/>
+
+            <column name="is_read" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="payload_id" type="BIGINT"/>
+
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="read_at" type="TIMESTAMP WITH TIME ZONE"/>
+        </createTable>
+
+        <addUniqueConstraint
+                tableName="notifications"
+                columnNames="user_id, payload_id"
+                constraintName="uk_notifications_user_payload"/>
+
+        <addForeignKeyConstraint
+                baseTableName="notifications"
+                baseColumnNames="payload_id"
+                referencedTableName="notification_payloads"
+                referencedColumnNames="payload_id"
+                constraintName="fk_notifications_payload"/>
+
+        <createIndex
+                tableName="notifications"
+                indexName="idx_notifications_user_id">
+            <column name="user_id"/>
+        </createIndex>
+
+        <createIndex
+                tableName="notifications"
+                indexName="idx_notifications_payload_id">
+            <column name="payload_id"/>
+        </createIndex>
+
+        <createIndex
+                tableName="notification_payloads"
+                indexName="idx_notification_payloads_event_id">
+            <column name="event_id"/>
+        </createIndex>
+
+    </changeSet>
+
+</databaseChangeLog>
