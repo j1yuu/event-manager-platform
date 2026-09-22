@@ -9,6 +9,7 @@ public record EventChangedDto(
     Long eventId,
     Instant occurredAt,
     String eventName,
+    String message,
     Long ownerId,
     Long changedById,
     List<Long> subscribers,

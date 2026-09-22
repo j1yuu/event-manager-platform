@@ -36,6 +36,9 @@ public class NotificationPayload {
     @Column(name = "event_name", nullable = false)
     private String eventName;
 
+    @Column(name = "message", nullable = false)
+    private String message;
+
     @Column(name = "event_id", nullable = false)
     private Long eventId;
 

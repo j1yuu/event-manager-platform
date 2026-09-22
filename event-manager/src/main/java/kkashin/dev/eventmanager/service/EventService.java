@@ -73,7 +73,13 @@ public class EventService {
             throw new ManagerBadRequestException("Only an event waiting to start can be cancelled");
         }
 
-        var kafkaDto = eventMapper.mapKafkaEventStatus(event, EventStatus.CANCELLED, currentUser.getId(), EventType.EVENT_CLOSED);
+        var kafkaDto = eventMapper.mapKafkaEventStatus(
+                event,
+                EventStatus.CANCELLED,
+                currentUser.getId(),
+                EventType.EVENT_CLOSED,
+                "Event was closed"
+        );
         outboxService.enqueue(kafkaDto);
 
         event.setStatus(EventStatus.CANCELLED);
@@ -109,7 +115,7 @@ public class EventService {
             throw new ManagerBadRequestException("Event maxPlaces couldn't be more than location capacity");
         }
 
-        var kafkaDto = eventMapper.mapKafkaEvent(eventUpdateDto, source, location, user);
+        var kafkaDto = eventMapper.mapKafkaEvent(eventUpdateDto, source, location, user, "Event was changed");
         var updated = eventMapper.fromUpdateDto(eventUpdateDto, source, location);
         var saved = eventRepository.save(updated);
 

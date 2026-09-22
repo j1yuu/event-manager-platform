@@ -37,17 +37,17 @@ public class EventStatusScheduler {
                 .filter(event -> !event.getDate().plusMinutes(event.getDuration()).isAfter(now))
                 .toList();
 
-        updateListAndMap(eventsToStart, kafkaDtos, EventStatus.STARTED);
-        updateListAndMap(eventsToFinish, kafkaDtos, EventStatus.FINISHED);
+        updateListAndMap(eventsToStart, kafkaDtos, EventStatus.STARTED, "Event was started");
+        updateListAndMap(eventsToFinish, kafkaDtos, EventStatus.FINISHED, "Event was finished");
 
         for (EventChangedDto e : kafkaDtos) {
             outboxService.enqueue(e);
         }
     }
 
-    private void updateListAndMap(List<EventEntity> entities, List<EventChangedDto> kafkaDtos, EventStatus status) {
+    private void updateListAndMap(List<EventEntity> entities, List<EventChangedDto> kafkaDtos, EventStatus status, String message) {
         for (EventEntity e : entities) {
-            var mapped = mapper.mapKafkaEventStatus(e, status, null, EventType.EVENT_UPDATED);
+            var mapped = mapper.mapKafkaEventStatus(e, status, null, EventType.EVENT_UPDATED, message);
 
             kafkaDtos.add(mapped);
             e.setStatus(status);

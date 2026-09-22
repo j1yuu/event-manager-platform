@@ -87,7 +87,13 @@ public class EventMapper {
         return source;
     }
 
-    public EventChangedDto mapKafkaEvent(EventUpdateDto dto, EventEntity source, EventLocation location, User user) {
+    public EventChangedDto mapKafkaEvent(
+            EventUpdateDto dto,
+            EventEntity source,
+            EventLocation location,
+            User user,
+            String message
+    ) {
         List<EventChangedFieldDto> fields = new ArrayList<>();
 
         if (dto.name() != null) {
@@ -144,6 +150,7 @@ public class EventMapper {
                 source.getId(),
                 clock.instant(),
                 source.getName(),
+                message,
                 source.getUser().getId(),
                 user.getId(),
                 source.getUsers().stream().map(UserEntity::getId).toList(),
@@ -151,7 +158,13 @@ public class EventMapper {
         );
     }
 
-    public EventChangedDto mapKafkaEventStatus(EventEntity source, EventStatus newStatus, Long changedById, EventType eventType) {
+    public EventChangedDto mapKafkaEventStatus(
+            EventEntity source,
+            EventStatus newStatus,
+            Long changedById,
+            EventType eventType,
+            String message
+    ) {
         List<EventChangedFieldDto> fields = new ArrayList<>();
 
         fields.add(new EventChangedFieldDto(
@@ -166,6 +179,7 @@ public class EventMapper {
                 source.getId(),
                 clock.instant(),
                 source.getName(),
+                message,
                 source.getUser().getId(),
                 changedById,
                 source.getUsers().stream().map(UserEntity::getId).toList(),

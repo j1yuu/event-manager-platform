@@ -49,6 +49,7 @@ public class NotificationService {
                 message.messageId(),
                 message.eventType().toString(),
                 message.eventName(),
+                message.message(),
                 message.eventId(),
                 message.changedById(),
                 message.ownerId(),
