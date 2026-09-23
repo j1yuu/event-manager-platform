@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - include:
+      file: migrations/001-create-locations-table.xml
+      relativeToChangelogFile: true
+  - include:
+      file: migrations/002-create-users-table.xml
+      relativeToChangelogFile: true
+  - include:
+      file: migrations/003-add-events-and-registrations.xml
+      relativeToChangelogFile: true
+  - include:
+      file: migrations/004-add-event-outbox-table.xml
+      relativeToChangelogFile: true
