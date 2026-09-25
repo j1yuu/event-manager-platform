@@ -16,9 +16,7 @@ import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
 public class KafkaConsumerConfiguration {
 
     @Bean
-    public ConsumerFactory<String, EventChangedDto> eventChangedDtoConsumerFactory(
-            KafkaProperties properties
-    ) {
+    public ConsumerFactory<String, EventChangedDto> eventChangedDtoConsumerFactory(KafkaProperties properties) {
         return createConsumerFactory(
                 properties,
                 EventChangedDto.class
