@@ -1,0 +1,81 @@
+server:
+  port: ${EM_SERVER_PORT:8080}
+  error:
+    include-errors: true
+
+spring:
+  application:
+    name: event-manager
+
+  datasource:
+    url: ${EM_DB_URL:jdbc:postgresql://localhost:5432/event-manager}
+    username: ${EM_DB_USERNAME:admin}
+    password: ${EM_DB_PASSWORD:test}
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+    show-sql: true
+
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/changelog-master.yaml
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    client-id: event-manager
+
+    admin:
+      auto-create: true
+      fail-fast: true
+
+    producer:
+      acks: all
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
+
+      properties:
+        "[enable.idempotence]": true
+        "[spring.json.add.type.headers]": false
+        "[request.timeout.ms]": 10000
+        "[delivery.timeout.ms]": 30000
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    disable-swagger-default-url: true
+    urls:
+      - name: Event Manager API
+        url: /docs/openapi/event-manager.openapi.yaml
+      - name: Event Notificator API
+        url: /docs/openapi/event-notificator.openapi.yaml
+    urls-primary-name: Event Manager API
+
+event-manager:
+  jwt:
+    issuer: ${JWT_ISSUER}
+    access-ttl: ${JWT_TTL}
+    secret-base64: ${JWT_SECRET}
+  admin:
+    login: ${APP_ADMIN_USERNAME}
+    password: ${APP_ADMIN_PASSWORD}
+  scheduler:
+    status-delay-ms: 60000
+    outbox:
+      delay-ms: 60000
+      lease-duration: 5m
+      ack-timeout: 35s
+  kafka:
+    topics:
+      event-updated:
+        name: ${KAFKA_EVENT_CHANGED_TOPIC:event-manager.event-changed}
+        partitions: ${KAFKA_EVENT_CHANGED_PARTITIONS:3}
+        replicas: ${KAFKA_EVENT_CHANGED_REPLICAS:1}
+        retention: ${KAFKA_EVENT_CHANGED_RETENTION:7d}
+        min-in-sync-replicas: ${KAFKA_EVENT_CHANGED_MIN_ISR:1}
