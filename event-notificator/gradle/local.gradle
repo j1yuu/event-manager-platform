@@ -1,0 +1,21 @@
+bootRun {
+    jvmArgs(
+            "-DsocksProxyHost=",
+            "-DsocksProxyPort=",
+            "-Dhttp.proxyHost=",
+            "-Dhttp.proxyPort=",
+            "-Dhttps.proxyHost=",
+            "-Dhttps.proxyPort="
+    )
+}
+
+test {
+    jvmArgs(
+            "-DsocksProxyHost=",
+            "-DsocksProxyPort=",
+            "-Dhttp.proxyHost=",
+            "-Dhttp.proxyPort=",
+            "-Dhttps.proxyHost=",
+            "-Dhttps.proxyPort="
+    )
+}
