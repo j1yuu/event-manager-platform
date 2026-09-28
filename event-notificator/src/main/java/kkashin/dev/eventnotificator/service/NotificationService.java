@@ -1,11 +1,14 @@
 package kkashin.dev.eventnotificator.service;
 
+import kkashin.dev.eventnotificator.model.domain.NotificationsChangedBatchEvent;
+import kkashin.dev.eventnotificator.model.domain.NotificationsChangedEvent;
 import kkashin.dev.eventnotificator.model.dto.MarkReadRequestDto;
 import kkashin.dev.eventnotificator.model.dto.NotificationDto;
 import kkashin.dev.eventnotificator.model.mappers.NotificationMapper;
 import kkashin.dev.eventnotificator.repository.NotificationPayloadRepository;
 import kkashin.dev.eventnotificator.repository.NotificationRepository;
 import kkashin.dev.kafka.EventChangedDto;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
@@ -23,6 +26,7 @@ public class NotificationService {
     private final NotificationMapper notificationMapper;
 
     private final Clock clock;
+    private final ApplicationEventPublisher eventPublisher;
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public NotificationService(
@@ -30,13 +34,15 @@ public class NotificationService {
             NotificationPayloadRepository payloadRepository,
             UserService userService,
             NotificationMapper notificationMapper,
-            Clock clock
+            Clock clock,
+            ApplicationEventPublisher eventPublisher
     ) {
         this.notificationRepository = notificationRepository;
         this.payloadRepository = payloadRepository;
         this.userService = userService;
         this.notificationMapper = notificationMapper;
         this.clock = clock;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -58,6 +64,7 @@ public class NotificationService {
         );
 
         notificationRepository.insertIfAbsentBatch(userIds.toArray(Long[]::new), payloadId);
+        eventPublisher.publishEvent(new NotificationsChangedBatchEvent(userIds));
     }
 
     public List<NotificationDto> getUnread() {
@@ -76,5 +83,6 @@ public class NotificationService {
         var now = clock.instant();
 
         notificationRepository.markRead(dto.notificationIds(), now, currentUser.getId());
+        eventPublisher.publishEvent(new NotificationsChangedEvent(currentUser.getId()));
     }
 }

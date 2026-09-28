@@ -18,6 +18,17 @@ spring:
     open-in-view: false
     show-sql: true
 
+  cache:
+    type: redis
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:test}
+      connect-timeout: 2s
+      timeout: 2s
+
   liquibase:
     enabled: true
     change-log: classpath:/db/changelog/changelog-master.yaml

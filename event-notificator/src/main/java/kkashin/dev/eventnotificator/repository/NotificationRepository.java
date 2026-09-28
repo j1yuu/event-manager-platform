@@ -1,7 +1,7 @@
 package kkashin.dev.eventnotificator.repository;
 
+import kkashin.dev.eventnotificator.model.domain.UserUnreadCountProjection;
 import kkashin.dev.eventnotificator.model.entity.Notification;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
@@ -32,6 +33,23 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     order by n.createdAt desc
 """)
     List<Notification> getNotificationsByUserId(@Param("userId") Long userId);
+
+    @Query(value = """
+    select count(*)
+    from notifications n
+    where n.user_id = :userId
+        and n.is_read = false
+""", nativeQuery = true)
+    long getUnreadCountForUserById(@Param("userId") Long userId);
+
+    @Query(value = """
+    select user_id as userId, count(*) as unreadCount
+    from notifications n
+    where user_id in (:userIds)
+        and is_read = false
+    group by user_id
+""", nativeQuery = true)
+    List<UserUnreadCountProjection> getUnreadCountByUserId(@Param("userIds") List<Long> userIds);
 
     @Modifying
     @Query(value = """
