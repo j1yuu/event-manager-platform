@@ -3,9 +3,10 @@ package kkashin.dev.eventnotificator.service;
 import kkashin.dev.eventnotificator.model.domain.NotificationsChangedBatchEvent;
 import kkashin.dev.eventnotificator.model.domain.NotificationsChangedEvent;
 import kkashin.dev.eventnotificator.repository.NotificationRepository;
-import org.springframework.context.event.EventListener;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -26,7 +27,7 @@ public class CacheNotificationsService {
         this.redis = redis;
     }
 
-    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     private void handleSingle(NotificationsChangedEvent event) {
         var userId = event.userId();
         var unreadCount = notificationRepository.getUnreadCountForUserById(userId);
@@ -34,7 +35,7 @@ public class CacheNotificationsService {
         set(userId, unreadCount);
     }
 
-    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     private void handleBatch(NotificationsChangedBatchEvent event) {
         var userUnreadPairs = notificationRepository.getUnreadCountByUserId(event.userIds());
 
