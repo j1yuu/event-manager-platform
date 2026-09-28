@@ -6,36 +6,54 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
-import java.util.Map;
 
 @Configuration
 public class RedisConfiguration {
 
     @Bean
-    RedisCacheManager redisCacheManager(
-            RedisConnectionFactory connectionFactory,
-            RedisSerializer<Object> jsonSerializer
+    public RedisSerializer<Object> redisJsonSerializer() {
+        return RedisSerializer.json();
+    }
+
+    @Bean
+    public RedisCacheManager cacheManager(
+            RedisConnectionFactory factory,
+            RedisSerializer<Object> redisJsonSerializer
     ) {
-        var defaults = RedisCacheConfiguration.defaultCacheConfig()
-                .serializeKeysWith(SerializationPair.fromSerializer(new StringRedisSerializer()))
-                .serializeValuesWith(SerializationPair.fromSerializer(jsonSerializer))
+        RedisCacheConfiguration config = RedisCacheConfiguration
+                .defaultCacheConfig()
+                .serializeKeysWith(
+                        RedisSerializationContext
+                                .SerializationPair
+                                .fromSerializer(new StringRedisSerializer())
+                )
+                .serializeValuesWith(
+                        RedisSerializationContext
+                                .SerializationPair
+                                .fromSerializer(redisJsonSerializer)
+                )
                 .disableCachingNullValues()
-                .entryTtl(Duration.ofMinutes(10));
+                .entryTtl(Duration.ofMinutes(5));
 
-        var perCache = Map.of(
-                CacheNames.LOCATIONS_ALL, defaults.entryTtl(Duration.ofMinutes(2)),
-                CacheNames.LOCATIONS, defaults.entryTtl(Duration.ofMinutes(10)),
-                CacheNames.EVENTS, defaults.entryTtl(Duration.ofMinutes(5))
-        );
-
-        return RedisCacheManager.builder(connectionFactory)
-                .cacheDefaults(defaults)
-                .withInitialCacheConfigurations(perCache)
+        return RedisCacheManager.builder(factory)
+                .cacheDefaults(config)
+                .withCacheConfiguration(
+                        CacheNames.LOCATIONS_ALL,
+                        config.entryTtl(Duration.ofMinutes(2))
+                )
+                .withCacheConfiguration(
+                        CacheNames.LOCATIONS,
+                        config.entryTtl(Duration.ofMinutes(10))
+                )
+                .withCacheConfiguration(
+                        CacheNames.EVENTS,
+                        config.entryTtl(Duration.ofMinutes(5))
+                )
                 .build();
     }
 }

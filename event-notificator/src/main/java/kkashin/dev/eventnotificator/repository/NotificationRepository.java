@@ -45,6 +45,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     @Query(value = """
         delete from notifications
         where created_at <= :timestamp
+            and is_read = false
 """, nativeQuery = true)
     void removeOldReads(@Param("timestamp") Instant timestamp);
 

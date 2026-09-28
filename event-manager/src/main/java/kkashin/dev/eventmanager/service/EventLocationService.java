@@ -22,7 +22,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Validated
 @Service
@@ -32,9 +34,11 @@ public class EventLocationService {
     private final EventLocationMapper eventLocationMapper;
     private final EventRepository eventRepository;
 
-    @Cacheable(cacheNames = CacheNames.LOCATIONS_ALL)
+    @Cacheable(cacheNames = "locations-all")
     public List<EventLocationDto> getAllLocations() {
-        return eventLocationRepository.findAll().stream().map(eventLocationMapper::toDto).toList();
+        return eventLocationRepository.findAll().stream()
+                .map(eventLocationMapper::toDto)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Transactional
