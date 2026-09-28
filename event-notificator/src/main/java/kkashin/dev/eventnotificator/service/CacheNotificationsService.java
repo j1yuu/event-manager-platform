@@ -1,6 +1,5 @@
 package kkashin.dev.eventnotificator.service;
 
-import kkashin.dev.eventnotificator.configuration.CacheConfiguration;
 import kkashin.dev.eventnotificator.model.domain.NotificationsChangedBatchEvent;
 import kkashin.dev.eventnotificator.model.domain.NotificationsChangedEvent;
 import kkashin.dev.eventnotificator.repository.NotificationRepository;
@@ -11,14 +10,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-
 @Service
 public class CacheNotificationsService {
 
     private static final String NOTIFICATIONS_COUNT_PREFIX = "notif:unread:";
-    private static final Logger log = LoggerFactory.getLogger(CacheConfiguration.class);
+    private static final Logger log = LoggerFactory.getLogger(CacheNotificationsService.class);
 
     private final NotificationRepository notificationRepository;
     private final StringRedisTemplate redis;
@@ -40,23 +36,23 @@ public class CacheNotificationsService {
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    private void handleBatch(NotificationsChangedBatchEvent event) {
-        var userUnreadPairs = notificationRepository.getUnreadCountByUserId(event.userIds());
-
-        userUnreadPairs
-                .forEach((row) -> set(row.getUserId(), row.getUnreadCount()));
+    void handleBatch(NotificationsChangedBatchEvent event) {
+        event.incrementsByUserId().forEach(this::increment);
     }
 
     private void set(Long userId, Long count) {
         try {
-            redis.opsForValue()
-                    .set(
-                            key(userId),
-                            String.valueOf(count),
-                            Duration.of(10, ChronoUnit.MINUTES)
-                    );
+            redis.opsForValue().set(key(userId), String.valueOf(count));
         } catch (RuntimeException e) {
             log.warn("Unable to sync unread counter for userId={}", userId, e);
+        }
+    }
+
+    private void increment(Long userId, Long delta) {
+        try {
+            redis.opsForValue().increment(key(userId), delta);
+        } catch (RuntimeException e) {
+            log.warn("Unable to increment unread counter for userId={}, delta={}", userId, delta, e);
         }
     }
 

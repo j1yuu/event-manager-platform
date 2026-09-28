@@ -15,6 +15,7 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.time.Clock;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class NotificationService {
@@ -63,8 +64,13 @@ public class NotificationService {
                 message.occurredAt()
         );
 
-        notificationRepository.insertIfAbsentBatch(userIds.toArray(Long[]::new), payloadId);
-        eventPublisher.publishEvent(new NotificationsChangedBatchEvent(userIds));
+        var insertedByUser = notificationRepository.insertIfAbsentBatch(userIds.toArray(Long[]::new), payloadId)
+                .stream()
+                .collect(Collectors.toMap(
+                        row -> row.getUserId(),
+                        row -> row.getUnreadCount()
+                ));
+        eventPublisher.publishEvent(new NotificationsChangedBatchEvent(insertedByUser));
     }
 
     public List<NotificationDto> getUnread() {
