@@ -1,6 +1,6 @@
 package kkashin.dev.eventnotificator.model.domain;
 
-import java.util.List;
+import java.util.Map;
 
-public record NotificationsChangedBatchEvent(List<Long> userIds) {
+public record NotificationsChangedBatchEvent(Map<Long, Long> incrementsByUserId) {
 }
