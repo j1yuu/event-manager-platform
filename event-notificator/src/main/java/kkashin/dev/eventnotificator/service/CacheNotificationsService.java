@@ -1,8 +1,11 @@
 package kkashin.dev.eventnotificator.service;
 
+import kkashin.dev.eventnotificator.configuration.CacheConfiguration;
 import kkashin.dev.eventnotificator.model.domain.NotificationsChangedBatchEvent;
 import kkashin.dev.eventnotificator.model.domain.NotificationsChangedEvent;
 import kkashin.dev.eventnotificator.repository.NotificationRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionPhase;
@@ -14,10 +17,11 @@ import java.time.temporal.ChronoUnit;
 @Service
 public class CacheNotificationsService {
 
+    private static final String NOTIFICATIONS_COUNT_PREFIX = "notif:unread:";
+    private static final Logger log = LoggerFactory.getLogger(CacheConfiguration.class);
+
     private final NotificationRepository notificationRepository;
     private final StringRedisTemplate redis;
-
-    private final String NOTIFICATIONS_COUNT_PREFIX = "notif:unread:";
 
     public CacheNotificationsService(
             NotificationRepository notificationRepository,
@@ -44,23 +48,34 @@ public class CacheNotificationsService {
     }
 
     private void set(Long userId, Long count) {
-        redis
-                .opsForValue()
-                .set(
-                        key(userId),
-                        String.valueOf(count),
-                        Duration.of(10, ChronoUnit.MINUTES)
-                );
+        try {
+            redis.opsForValue()
+                    .set(
+                            key(userId),
+                            String.valueOf(count),
+                            Duration.of(10, ChronoUnit.MINUTES)
+                    );
+        } catch (RuntimeException e) {
+            log.warn("Unable to sync unread counter for userId={}", userId, e);
+        }
     }
 
     public Long get(Long userId) {
-        var val = redis
-                .opsForValue()
-                .get(key(userId));
+        try {
+            var val = redis.opsForValue()
+                    .get(key(userId));
 
-        return val == null
-                ? 0
-                : Long.parseLong(val);
+            if (val != null) {
+                return Long.parseLong(val);
+            }
+        } catch (Exception e) {
+            log.warn("Unable to get unread counter for userId={}", userId, e);
+        }
+
+        var count = notificationRepository.getUnreadCountForUserById(userId);
+        set(userId, count);
+
+        return count;
     }
 
     private String key(Long userId) {

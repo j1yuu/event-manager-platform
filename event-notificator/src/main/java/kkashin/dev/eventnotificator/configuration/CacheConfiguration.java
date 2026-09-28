@@ -4,17 +4,16 @@ import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
-import org.springframework.cache.annotation.CachingConfigurationSelector;
+import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.interceptor.CacheErrorHandler;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class CacheConfiguration extends CachingConfigurationSelector {
+public class CacheConfiguration implements CachingConfigurer {
 
     private static final Logger log = LoggerFactory.getLogger(CacheConfiguration.class);
 
-    @Bean
+    @Override
     public CacheErrorHandler errorHandler() {
         return new CacheErrorHandler() {
             @Override
