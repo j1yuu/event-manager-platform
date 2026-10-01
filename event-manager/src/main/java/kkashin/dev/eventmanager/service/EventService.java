@@ -1,5 +1,6 @@
 package kkashin.dev.eventmanager.service;
 
+import kkashin.dev.eventmanager.utils.CacheNames;
 import kkashin.dev.exceptions.ManagerForbiddenException;
 import kkashin.dev.exceptions.ManagerBadRequestException;
 import kkashin.dev.exceptions.ManagerNotFoundException;
@@ -15,6 +16,9 @@ import kkashin.dev.eventmanager.repository.EventLocationRepository;
 import kkashin.dev.eventmanager.repository.EventRepository;
 import kkashin.dev.kafka.EventType;
 import kkashin.dev.securityConstants.UserRoles;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,6 +69,7 @@ public class EventService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = CacheNames.EVENTS, key = "#eventId")
     public void deleteEvent(Long eventId) {
         var currentUser = userService.getCurrentUser();
         var event = findEventOrError(eventId);
@@ -85,6 +90,7 @@ public class EventService {
         event.setStatus(EventStatus.CANCELLED);
     }
 
+    @Cacheable(cacheNames = CacheNames.EVENTS, key = "#eventId")
     public EventDto getEventById(Long eventId) {
         var event = findEventOrError(eventId);
 
@@ -92,6 +98,7 @@ public class EventService {
     }
 
     @Transactional
+    @CachePut(cacheNames = CacheNames.EVENTS, key = "#eventId")
     public EventDto updateEvent(Long eventId, EventUpdateDto eventUpdateDto) {
         var source = findEventOrError(eventId);
         var user = userService.getCurrentUser();

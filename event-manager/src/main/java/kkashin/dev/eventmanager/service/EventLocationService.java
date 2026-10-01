@@ -3,6 +3,7 @@ package kkashin.dev.eventmanager.service;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import kkashin.dev.eventmanager.utils.CacheNames;
 import kkashin.dev.exceptions.ManagerBadRequestException;
 import kkashin.dev.exceptions.ManagerNotFoundException;
 import kkashin.dev.eventmanager.model.dto.location.CreateEventLocationDto;
@@ -13,11 +14,17 @@ import kkashin.dev.eventmanager.model.mappers.EventLocationMapper;
 import kkashin.dev.eventmanager.repository.EventLocationRepository;
 import kkashin.dev.eventmanager.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Validated
 @Service
@@ -27,11 +34,15 @@ public class EventLocationService {
     private final EventLocationMapper eventLocationMapper;
     private final EventRepository eventRepository;
 
+    @Cacheable(cacheNames = "locations-all")
     public List<EventLocationDto> getAllLocations() {
-        return eventLocationRepository.findAll().stream().map(eventLocationMapper::toDto).toList();
+        return eventLocationRepository.findAll().stream()
+                .map(eventLocationMapper::toDto)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Transactional
+    @CacheEvict(cacheNames = CacheNames.LOCATIONS_ALL, allEntries = true)
     public EventLocationDto createLocation(@NotNull @Valid CreateEventLocationDto createEventLocationDto) {
         var locationToCreate = eventLocationMapper.toEntity(createEventLocationDto);
         var createdLocation = eventLocationRepository.save(locationToCreate);
@@ -40,6 +51,10 @@ public class EventLocationService {
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(cacheNames = CacheNames.LOCATIONS_ALL, allEntries = true),
+            @CacheEvict(cacheNames = CacheNames.LOCATIONS, key = "#id")
+    })
     public void deleteLocation(@NotNull @Positive Long id) {
         var locationToDelete = getLocationOrThrow(id);
 
@@ -50,11 +65,16 @@ public class EventLocationService {
         eventLocationRepository.delete(locationToDelete);
     }
 
+    @Cacheable(cacheNames = CacheNames.LOCATIONS, key = "#id")
     public EventLocationDto getLocation(@NotNull @Positive Long id) {
         return eventLocationMapper.toDto(getLocationOrThrow(id));
     }
 
     @Transactional
+    @Caching(
+            evict = { @CacheEvict(cacheNames = CacheNames.LOCATIONS_ALL, allEntries = true) },
+            put = { @CachePut(cacheNames = CacheNames.LOCATIONS, key = "#id") }
+    )
     public EventLocationDto updateLocation(
             @NotNull @Positive Long id,
             @NotNull @Valid UpdateEventLocationDto updateEventLocationDto

@@ -1,7 +1,7 @@
 package kkashin.dev.eventnotificator.repository;
 
+import kkashin.dev.eventnotificator.model.domain.UserUnreadCountProjection;
 import kkashin.dev.eventnotificator.model.entity.Notification;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -33,28 +33,42 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 """)
     List<Notification> getNotificationsByUserId(@Param("userId") Long userId);
 
+    @Query(value = """
+    select count(*)
+    from notifications n
+    where n.user_id = :userId
+        and n.is_read = false
+""", nativeQuery = true)
+    long getUnreadCountForUserById(@Param("userId") Long userId);
+
     @Modifying
     @Query(value = """
         delete from notifications
         where created_at <= :timestamp
+            and is_read = false
 """, nativeQuery = true)
     void removeOldReads(@Param("timestamp") Instant timestamp);
 
-    @Modifying
     @Query(value = """
-    insert into notifications (
-                               user_id,
-                               payload_id,
-                               is_read,
-                               created_at
+    with inserted as (
+        insert into notifications (
+                                   user_id,
+                                   payload_id,
+                                   is_read,
+                                   created_at
+        )
+        select user_id,
+               :payloadId,
+               false,
+               now()
+        from unnest(cast(:ids as bigint[])) as user_id
+        on conflict (user_id, payload_id)
+        do nothing
+        returning user_id
     )
-    select user_id,
-           :payloadId,
-           false,
-           now()
-    from unnest(cast(:ids as bigint[])) as user_id
-    on conflict (user_id, payload_id)
-    do nothing
+    select user_id as userId, count(*) as unreadCount
+    from inserted
+    group by user_id
 """, nativeQuery = true)
-    void insertIfAbsentBatch(@Param("ids") Long[] ids, @Param("payloadId") Long payloadId);
+    List<UserUnreadCountProjection> insertIfAbsentBatch(@Param("ids") Long[] ids, @Param("payloadId") Long payloadId);
 }

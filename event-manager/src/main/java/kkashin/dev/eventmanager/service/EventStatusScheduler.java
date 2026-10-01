@@ -4,9 +4,11 @@ import kkashin.dev.eventmanager.model.entity.EventEntity;
 import kkashin.dev.eventmanager.model.enums.EventStatus;
 import kkashin.dev.eventmanager.model.mappers.EventMapper;
 import kkashin.dev.eventmanager.repository.EventRepository;
+import kkashin.dev.eventmanager.utils.CacheNames;
 import kkashin.dev.kafka.EventChangedDto;
 import kkashin.dev.kafka.EventType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +30,8 @@ public class EventStatusScheduler {
 
     @Scheduled(fixedDelayString = "${event-manager.scheduler.status-delay-ms:60000}")
     @Transactional
-    public void updateStatuses() {
+    @CacheEvict(cacheNames = CacheNames.EVENTS, allEntries = true, condition = "#result > 0")
+    public int updateStatuses() {
         var now = LocalDateTime.ofInstant(clock.instant(), ZoneId.of("UTC"));
         List<EventChangedDto> kafkaDtos = new ArrayList<>();
 
@@ -43,6 +46,8 @@ public class EventStatusScheduler {
         for (EventChangedDto e : kafkaDtos) {
             outboxService.enqueue(e);
         }
+
+        return kafkaDtos.size();
     }
 
     private void updateListAndMap(List<EventEntity> entities, List<EventChangedDto> kafkaDtos, EventStatus status, String message) {

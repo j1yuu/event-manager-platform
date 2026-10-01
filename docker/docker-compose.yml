@@ -5,9 +5,9 @@ services:
     restart: unless-stopped
 
     environment:
-      - POSTGRES_USER=${EM_DB_USERNAME}
-      - POSTGRES_PASSWORD=${EM_DB_PASSWORD}
-      - POSTGRES_DB=${EM_DB_DATABASE}
+      - POSTGRES_USER=${EM_DB_USERNAME:?EM_DB_USERNAME is required}
+      - POSTGRES_PASSWORD=${EM_DB_PASSWORD:?EM_DB_PASSWORD is required}
+      - POSTGRES_DB=${EM_DB_DATABASE:?EM_DB_DATABASE is required}
 
     healthcheck:
       test:
@@ -32,9 +32,9 @@ services:
     restart: unless-stopped
 
     environment:
-      - POSTGRES_USER=${EN_DB_USERNAME}
-      - POSTGRES_PASSWORD=${EN_DB_PASSWORD}
-      - POSTGRES_DB=${EN_DB_DATABASE}
+      - POSTGRES_USER=${EN_DB_USERNAME:?EN_DB_USERNAME is required}
+      - POSTGRES_PASSWORD=${EN_DB_PASSWORD:?EN_DB_PASSWORD is required}
+      - POSTGRES_DB=${EN_DB_DATABASE:?EN_DB_DATABASE is required}
 
     healthcheck:
       test:
@@ -118,7 +118,7 @@ services:
     image: kafbat/kafka-ui:latest
     container_name: event-manager-kafka-ui
     ports:
-      - "5172:8080"
+      - "${KAFKA_UI_PORT:-5172}:8080"
     depends_on:
       event-manager-broker:
         condition: service_healthy
@@ -127,7 +127,44 @@ services:
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: 'event-manager-broker:19092'
       DYNAMIC_CONFIG_ENABLED: 'true'
 
+  redis:
+    image: redis:8-alpine
+    container_name: event-platform-redis
+
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+
+    environment:
+      REDISCLI_AUTH: ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+
+    command:
+      - redis-server
+      - --maxmemory
+      - ${REDIS_MAX_MEMORY:-512mb}
+      - --maxmemory-policy
+      - ${REDIS_MAX_MEMORY_POLICY:-allkeys-lfu}
+      - --appendonly
+      - "yes"
+      - --requirepass
+      - ${REDIS_PASSWORD}
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "redis-cli ping"
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+    restart: unless-stopped
+
+    volumes:
+      - event-manager-platform-redis:/data
+
 volumes:
   event-manager-db-data:
   event-notificator-db-data:
   event-manager-broker-data:
+  event-manager-platform-redis:
